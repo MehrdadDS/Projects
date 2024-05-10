@@ -132,3 +132,46 @@ def create_line_charts_by_divisions(df, holiday_weeks,division_list, output_pdf,
     plt.savefig(output_pdf)
     plt.close()
     return fig
+
+
+
+
+import matplotlib.pyplot as plt
+
+def line_bar_plot(dataframe,holiday_weeks):
+    fig, ax1 = plt.subplots()
+
+
+    for year, weeks in holiday_weeks.items():
+        for week in weeks:
+            style = 'solid' if year == 2023 else 'dashed'
+            linewidth_op = 5 if year == 2023 else 2
+            color_year = 'orange' if year == 2023 else 'purple'
+            ax1.axvline(x=week, color=color_year, linestyle=style, linewidth=linewidth_op)
+
+
+
+
+
+    # Line plots for 2023 and 2024
+    ax1.plot(dataframe['Week'], dataframe[2023], marker='o', label='2023')
+    ax1.plot(dataframe['Week'], dataframe[2024], marker='o', label='2024')
+    ax1.set_xlabel('Week')
+    ax1.set_ylabel('Pieces')
+    ax1.tick_params(axis='y')
+    ax1.set_xticks(dataframe['Week'])
+
+    # Bar plot for 'diff'
+    ax2 = ax1.twinx()
+    colors = ['lightgreen' if diff >= 0 else 'lightcoral' for diff in dataframe['diff_y']]
+    ax2.bar(dataframe['Week'], dataframe['diff_y'], color=colors, alpha=0.5, label='Diff')
+    ax2.set_ylabel('Diff')
+    ax2.tick_params(axis='y')
+
+    # Add legend
+    fig.legend(loc='upper right')
+
+    # Show the plot
+    plt.title('Weekly Comparison: Pieces and Difference')
+    plt.show()
+

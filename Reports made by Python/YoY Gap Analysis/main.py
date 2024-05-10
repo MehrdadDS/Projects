@@ -8,7 +8,8 @@ import matplotlib.backends.backend_pdf as pdf
 
 
 # Importing file
-yoy = pd.read_excel(r'C:\My Folder\Python Projects\Reports\YoY Gap Analysis\Input\yoy_gap_analysis_input.xlsx')
+db = pd.read_excel(r'C:\My Folder\Python Projects\Reports\YoY Gap Analysis\Input\yoy_gap_analysis_input.xlsx')
+db = db.iloc[1:,:]
 
 yoy_gap_analysis_file = 'yoy_gap_analysis_file.pdf'
 
@@ -16,6 +17,7 @@ holiday_weeks = {2023:[1,8,14],#14
                  2024:[1,8,13]}
 
 replacing_weeks = {13:14}
+yoy = db.copy(deep=True)
 yoy['Week'] = yoy['Week'].replace(replacing_weeks)
 
 
@@ -37,7 +39,6 @@ region_list = {
                 'West':  ['PACIFIC', 'PRAIRIES'] 
                 }
 
-yoy = yoy.iloc[1:,:]
 yoy = yoy[yoy['Dest Division'].isin(list(division_notations.keys()))]
 yoy_pivot = yoy.pivot_table(values='Pieces',index=['Dest Division','Week'],columns='Year',aggfunc='sum').reset_index().fillna(0)
 yoy_pivot['diff'] = np.round(yoy_pivot.iloc[:,3] - yoy_pivot.iloc[:,2])
@@ -61,7 +62,6 @@ yoy_national['per'].replace([np.inf],100,inplace=True)
 
 
 
-
 """PLOT"""
 # Create a PDF object
 pdf_pages = pdf.PdfPages(yoy_gap_analysis_file)
@@ -74,5 +74,17 @@ pdf_pages.savefig(national_yoy_gap_chart)
 #regional_yoy_gap_chart = plots.create_line_charts(yoy_pivot, holiday_weeks, yoy_gap_analysis_file, title_fontsize=18, label_fontsize=14)
 divisional_yoy_gap_chart = plots.create_line_charts_by_divisions(yoy_pivot, holiday_weeks,division_list, yoy_gap_analysis_file, title_fontsize=18, label_fontsize=14)
 pdf_pages.savefig(divisional_yoy_gap_chart)
+
+
+
+yoy_without_modification = db.copy(deep=True)
+yoy_without_modification = yoy_without_modification[yoy_without_modification['Dest Division'].isin(list(division_notations.keys()))]
+yoy_pivot_without_modification = yoy_without_modification.pivot_table(values='Pieces',index=['Dest Division','Week'],columns='Year',aggfunc='sum').reset_index().fillna(0)
+yoy_pivot_without_modification['diff'] = np.round(yoy_pivot_without_modification.iloc[:,3] - yoy_pivot_without_modification.iloc[:,2])
+yoy_pivot_without_modification['per'] = np.round(( yoy_pivot_without_modification.iloc[:,3] / yoy_pivot_without_modification.iloc[:,2] -1  ) * 100)
+yoy_pivot_without_modification['per'].replace([np.inf],100,inplace=True)
+yoy_pivot_without_modification = yoy_pivot_without_modification.merge(yoy_pivot[['Dest Division','Week','diff']],on=['Dest Division','Week'],how='left')
+plots.line_bar_plot(yoy_pivot_without_modification[yoy_pivot_without_modification['Dest Division']=="ATLANTIC"],holiday_weeks)
+
 
 pdf_pages.close()

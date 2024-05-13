@@ -38,7 +38,7 @@ for customer in customers_list:
     yoy_pivot_by_terminal['diff'] = yoy_pivot_by_terminal.iloc[:,2] - yoy_pivot_by_terminal.iloc[:,1]
     yoy_pivot_by_terminal['per'] = np.round(100*((yoy_pivot_by_terminal.iloc[:,2] / yoy_pivot_by_terminal.iloc[:,1])-1),2)
     yoy_pivot_by_terminal['per'].replace([np.inf],100,inplace=True)
-
+    yoy_pivot_by_terminal.to_csv(f'yoy_pivot_by_terminal-{customer}.csv')
     yoy_pivot_by_terminal = yoy_pivot_by_terminal.sort_values('diff',ascending=False)
     ## Barplots for terminals
     plots.plot_diff_terminal_bar_chart(yoy_pivot_by_terminal, customer, output_folder, title="", top_positive=15, top_negative=15)
@@ -53,5 +53,5 @@ for customer in customers_list:
     yoy_ter_type['diff'] = yoy_ter_type.iloc[:,2] - yoy_ter_type.iloc[:,1]
     yoy_ter_type['per'] = np.round(100*((yoy_ter_type.iloc[:,2] / yoy_ter_type.iloc[:,1])-1),2)
     yoy_ter_type['per'].replace([np.inf],100,inplace=True)
-    yoy_ter_type = yoy_ter_type.sort_values('diff',ascending=True)
+    #yoy_ter_type = yoy_ter_type.sort_values('diff',ascending=True)
     plots.plot_diff_terminal_type_bar_chart(yoy_ter_type, customer, output_folder,"YoY YTD Terminal Types Performance Comparison" , title_font_size=30, label_font_size=30, xtick_font_size=40)

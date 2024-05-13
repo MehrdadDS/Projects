@@ -50,7 +50,7 @@ def plot_yearly_trend(df, customer, output_folder, xticks_size=10, graph_title="
 
 def plot_diff_division_bar_chart(df, customer, output_folder, title, title_font_size=16, label_font_size=12, xtick_font_size=10):
     # Set figure size
-    fig = plt.figure(figsize=(10, 5))
+    fig = plt.figure(figsize=(15, 7))
     
     # Create a new axis
     ax = fig.add_subplot(111)
@@ -109,12 +109,13 @@ def plot_diff_terminal_bar_chart(df, customer, output_folder, title, top_positiv
     
     # Plot top negative divisions
     plot_bar_chart(top_negative_terminals, customer, output_folder, f" Top {top_negative} Decliners", title_font_size, label_font_size, xtick_font_size)
+    plt.tight_layout()
 
     plt.close()
 
 def plot_bar_chart(df, customer, output_folder, title, title_font_size=16, label_font_size=12, xtick_font_size=10):
     # Set figure size
-    fig = plt.figure(figsize=(10, 5))
+    fig = plt.figure(figsize=(16, 5))
     df = df.sort_values(by='diff', ascending=True)
     # Create a new axis
     ax = fig.add_subplot(111)
@@ -157,4 +158,49 @@ def plot_bar_chart(df, customer, output_folder, title, title_font_size=16, label
     plt.tight_layout()
     #plt.show()
 
+def plot_diff_terminal_type_bar_chart(df, customer, output_folder, title, title_font_size=16, label_font_size=12, xtick_font_size=10):
+    # Set figure size
+    fig = plt.figure(figsize=(14, 5))
+    
+    # Create a new axis
+    ax = fig.add_subplot(111)
+    
+    # Extract relevant columns
+    divisions = df['Terminal Type']
+    diffs = df['diff']
+    pers = df['per']
+    
+    # Plot bars
+    colors = ['green' if diff >= 0 else 'red' for diff in diffs]
+    ax.barh(divisions, diffs, color=colors)
+    
+    # Add value annotations
+    for i, (diff, per) in enumerate(zip(diffs, pers)):
+        if diff >= 0:
+            ax.text(diff, i, f'+{diff/1000:.1f}k | (+{int(per)}%)', ha='left', va='center', fontsize=label_font_size)
+        else:
+            ax.text(diff, i, f'{diff/1000:.1f}k | ({int(per)}%)', ha='left', va='center', fontsize=label_font_size)
+    
+    # Set title and labels
+    ax.set_title(title+f"- {customer}", fontsize=title_font_size)
+    #ax.set_ylabel('Destination Division', fontsize=label_font_size)
+    ax.tick_params(axis='x', labelsize=xtick_font_size)
+    
+    # Remove spines from bottom, left, and right
+    ax.spines['bottom'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+
+    
+    # Remove xticks showing diff values
+    ax.set_xticks([])
+
+    # Save the plot
+    current_date = datetime.now().strftime("%Y%m%d")
+    plt.savefig(os.path.join(output_folder, f"{customer}_TerminalType_{current_date}.png"))
+    
+    # Show the plot
+    plt.tight_layout()
+    #plt.show()
     

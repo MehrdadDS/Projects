@@ -113,16 +113,17 @@ def plot_diff_terminal_bar_chart(df, customer, output_folder, title, top_positiv
     
     # Plot top positive divisions
     plot_bar_chart(top_positive_terminals, customer, output_folder, f" Top {top_positive} Incliners", title_font_size, label_font_size, xtick_font_size)
-    
+    plt.tight_layout()
+
     # Plot top negative divisions
     plot_bar_chart(top_negative_terminals, customer, output_folder, f" Top {top_negative} Decliners", title_font_size, label_font_size, xtick_font_size)
     plt.tight_layout()
 
     plt.close()
 
-def plot_bar_chart(df, customer, output_folder, title, title_font_size=16, label_font_size=12, xtick_font_size=10):
+def plot_bar_chart(df, customer, output_folder, title, title_font_size=16, label_font_size=14, xtick_font_size=10):
     # Set figure size
-    fig = plt.figure(figsize=(15, 8))
+    fig = plt.figure(figsize=(8, 9))
     df = df.sort_values(by='diff', ascending=True)
     # Create a new axis
     ax = fig.add_subplot(111)
@@ -147,7 +148,8 @@ def plot_bar_chart(df, customer, output_folder, title, title_font_size=16, label
     ax.set_title(title+f"- {customer}", fontsize=title_font_size)
     #ax.set_ylabel('Destination Division', fontsize=label_font_size)
     ax.tick_params(axis='x', labelsize=xtick_font_size)
-    ax.tick_params(axis='y', labelsize=xtick_font_size)
+    ax.tick_params(axis='y', labelsize=14)
+    plt.tight_layout()
 
     # Remove spines from bottom, left, and right
     ax.spines['bottom'].set_visible(False)

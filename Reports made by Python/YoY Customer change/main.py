@@ -21,7 +21,7 @@ previous_year = 2023
 starting_week   = 1
 ending_week     = 12
 
-pcs_thr = 65000
+pcs_thr = 30000
 pcs_per = 0.1
 
 pcs_thr_reg = 25000
@@ -49,7 +49,7 @@ division_notations= {
 """ Pull VT DATA and preprocess the data"""
 #path=r"C:\My Folder\Python Projects\Reports\YoY Customer change\Input\yoy_data.xlsx"
 #yoy = yoy_data_grapper.yoy_data_grapper(starting_week, ending_week)[1]
-yoy = pd.read_excel(r"Input\yoy_data.xlsx")
+yoy = pd.read_excel(r"Input\Apr_data.xlsx")
 #yoy= f.aggregate_excel_sheets(path)
 yoy = yoy.iloc[1:,:]
 yoy['Pieces'] = yoy['Pieces'].astype(int)

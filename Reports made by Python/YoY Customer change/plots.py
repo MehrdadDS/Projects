@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import os
 import numpy as np
 
-def plot_yoy_growth(yoy_growth,yoy_pivot_by_years, starting_week, ending_week, plot_title,max_name_length=15):
+def plot_yoy_growth(yoy_growth,yoy_pivot_by_years, starting_week, ending_week, plot_title,max_name_length=15, annotation_fontsize=15):
     fig = plt.figure(figsize=(15, 8))
 
     # Truncate master client names
@@ -21,9 +21,9 @@ def plot_yoy_growth(yoy_growth,yoy_pivot_by_years, starting_week, ending_week, p
             per_str = f'{int(per)}%'  # Format per as percentage without decimal points
         
         if diff < 0:
-            plt.text(idx, diff - 1000, f'{diff_str}\n{per_str}', ha='center', va='top')
+            plt.text(idx, diff - 1000, f'{diff_str}\n{per_str}', ha='center', va='top',fontsize=annotation_fontsize)
         else:
-            plt.text(idx, diff + 1000, f'{diff_str}\n{per_str}', ha='center', va='bottom')
+            plt.text(idx, diff + 1000, f'{diff_str}\n{per_str}', ha='center', va='bottom',fontsize=annotation_fontsize)
 
     percentage = yoy_pivot_by_years['per'][0]
     diff_str_div = f'{yoy_pivot_by_years["diff"].iloc[0]/1000000:.2f}M'

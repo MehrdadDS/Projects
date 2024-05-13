@@ -21,10 +21,13 @@ for customer in customers_list:
     print(customer)
     # Create a pivot table for divisions
     yoy_pivot_by_division = df.pivot_table(values='Pieces',columns='Year',index='Dest Division',aggfunc='sum').reset_index()
-    yoy_pivot_by_division['diff'] = yoy_pivot_by_division.iloc[:,2] - yoy_pivot_by_division.iloc[:,1]
+    try:
+        yoy_pivot_by_division['diff'] = yoy_pivot_by_division.iloc[:, 2] - yoy_pivot_by_division.iloc[:, 1]
+    except IndexError:
+        yoy_pivot_by_division[2023] = 0
+        yoy_pivot_by_division['diff'] = yoy_pivot_by_division.iloc[:, 2] - yoy_pivot_by_division.iloc[:, 1]    
     yoy_pivot_by_division['per'] = np.round(100*((yoy_pivot_by_division.iloc[:,2] / yoy_pivot_by_division.iloc[:,1])-1),2)
     yoy_pivot_by_division['per'].replace([np.inf],100,inplace=True)
-
     yoy_pivot_by_division = yoy_pivot_by_division.sort_values('diff',ascending=True)
     ## Barplots for division
     plots.plot_diff_division_bar_chart(yoy_pivot_by_division, customer, output_folder,"YoY Division Performance" , title_font_size=16, label_font_size=14, xtick_font_size=10)

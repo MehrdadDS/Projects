@@ -26,6 +26,7 @@ def plot_yearly_trend(df, customer, output_folder, xticks_size=10, graph_title="
     plt.ylabel(y_label)
     plt.legend(title='Year')
     plt.title(f"{graph_title} - {customer}")
+    plt.xticks(df['Week'])
 
     # Format y-axis to display in k's
     plt.gca().yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{int(x/1000):,}k'))
@@ -50,7 +51,7 @@ def plot_yearly_trend(df, customer, output_folder, xticks_size=10, graph_title="
 
 def plot_diff_division_bar_chart(df, customer, output_folder, title, title_font_size=16, label_font_size=12, xtick_font_size=10):
     # Set figure size
-    fig = plt.figure(figsize=(15, 7))
+    fig = plt.figure(figsize=(18, 8))
     
     # Create a new axis
     ax = fig.add_subplot(111)
@@ -75,7 +76,6 @@ def plot_diff_division_bar_chart(df, customer, output_folder, title, title_font_
     ax.set_title(title+f"- {customer}", fontsize=title_font_size)
     #ax.set_ylabel('Destination Division', fontsize=label_font_size)
     ax.tick_params(axis='x', labelsize=xtick_font_size)
-    
     # Remove spines from bottom, left, and right
     ax.spines['bottom'].set_visible(False)
     ax.spines['left'].set_visible(False)
@@ -115,7 +115,7 @@ def plot_diff_terminal_bar_chart(df, customer, output_folder, title, top_positiv
 
 def plot_bar_chart(df, customer, output_folder, title, title_font_size=16, label_font_size=12, xtick_font_size=10):
     # Set figure size
-    fig = plt.figure(figsize=(16, 5))
+    fig = plt.figure(figsize=(18, 8))
     df = df.sort_values(by='diff', ascending=True)
     # Create a new axis
     ax = fig.add_subplot(111)

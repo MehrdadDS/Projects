@@ -8,7 +8,7 @@ import matplotlib.backends.backend_pdf as pdf
 
 
 # Importing file
-db = pd.read_excel(r'C:\My Folder\Python Projects\Reports\YoY Gap Analysis\Input\yoy_gap_analysis_input.xlsx')
+db = pd.read_excel(r'Input\yoy_gap_analysis_input.xlsx')
 db = db.iloc[1:,:]
 
 yoy_gap_analysis_file = 'yoy_gap_analysis_file.pdf'

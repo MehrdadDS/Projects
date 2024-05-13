@@ -20,6 +20,8 @@ def plot_yearly_trend(df, customer, output_folder, xticks_size=10, graph_title="
         
     # Customize xticks
     plt.xticks(fontsize=xticks_size)
+    plt.yticks(fontsize=xticks_size)
+
 
     # Add labels and legend
     plt.xlabel(x_label)
@@ -42,16 +44,15 @@ def plot_yearly_trend(df, customer, output_folder, xticks_size=10, graph_title="
     current_date = datetime.now().strftime("%Y%m%d")
     
     # Save as PNG with customer name and date in the specified output folder
-    plt.savefig(os.path.join(output_folder, f"{customer}_trend_{current_date}.png"))
+    plt.savefig(os.path.join(output_folder, f"{customer}_trend_{current_date}.png"),dpi=300)
     
     # Show the plot
     #plt.show()
 
 
-
 def plot_diff_division_bar_chart(df, customer, output_folder, title, title_font_size=16, label_font_size=12, xtick_font_size=10):
     # Set figure size
-    fig = plt.figure(figsize=(18, 8))
+    fig = plt.figure(figsize=(10, len(df) * 0.7))  # Adjust figure height based on the number of divisions
     
     # Create a new axis
     ax = fig.add_subplot(111)
@@ -68,35 +69,41 @@ def plot_diff_division_bar_chart(df, customer, output_folder, title, title_font_
     # Add value annotations
     for i, (diff, per) in enumerate(zip(diffs, pers)):
         if diff >= 0:
-            ax.text(diff, i, f'+{diff/1000:.1f}k | (+{int(per)}%)', ha='left', va='center', fontsize=label_font_size)
+            ax.text(diff, i, f'+{diff/1000:.1f}k | +{int(per)}%', ha='left', va='center', fontsize=label_font_size)
         else:
-            ax.text(diff, i, f'{diff/1000:.1f}k | ({int(per)}%)', ha='left', va='center', fontsize=label_font_size)
+            ax.text(diff, i, f'{diff/1000:.1f}k | {int(per)}%', ha='left', va='center', fontsize=label_font_size)
     
     # Set title and labels
     ax.set_title(title+f"- {customer}", fontsize=title_font_size)
-    #ax.set_ylabel('Destination Division', fontsize=label_font_size)
     ax.tick_params(axis='x', labelsize=xtick_font_size)
+    
     # Remove spines from bottom, left, and right
     ax.spines['bottom'].set_visible(False)
     ax.spines['left'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
 
-    
+    # Rotate division names for better readability
+    ax.set_yticklabels(divisions, rotation=0, fontsize=xtick_font_size)  # Adjust rotation angle if needed
+    # Adjust left padding of y-axis to shift yticks to the right
+    #ax.tick_params(axis='y', pad=-50)  # Adjust the value as needed
     # Remove xticks showing diff values
     ax.set_xticks([])
+    plt.tight_layout()
 
-    # Save the plot
+    # Increase picture save quality to 300 DPI
     current_date = datetime.now().strftime("%Y%m%d")
-    plt.savefig(os.path.join(output_folder, f"{customer}_division_{current_date}.png"))
+    plt.savefig(os.path.join(output_folder, f"{customer}_division_{current_date}.png"), dpi=300)
     
     # Show the plot
-    plt.tight_layout()
     #plt.show()
 
+# Example usage:
+# plot_diff_division_bar_chart(df, 'Customer Name', 'output_folder', 'Title')
 
 
-def plot_diff_terminal_bar_chart(df, customer, output_folder, title, top_positive=10, top_negative=15, title_font_size=16, label_font_size=12, xtick_font_size=10):
+
+def plot_diff_terminal_bar_chart(df, customer, output_folder, title, top_positive=10, top_negative=15, title_font_size=16, label_font_size=12, xtick_font_size=1):
     # Sort the DataFrame based on 'diff' column
     df_sorted = df.sort_values(by='diff', ascending=False)
     
@@ -115,7 +122,7 @@ def plot_diff_terminal_bar_chart(df, customer, output_folder, title, top_positiv
 
 def plot_bar_chart(df, customer, output_folder, title, title_font_size=16, label_font_size=12, xtick_font_size=10):
     # Set figure size
-    fig = plt.figure(figsize=(18, 8))
+    fig = plt.figure(figsize=(15, 8))
     df = df.sort_values(by='diff', ascending=True)
     # Create a new axis
     ax = fig.add_subplot(111)
@@ -132,15 +139,16 @@ def plot_bar_chart(df, customer, output_folder, title, title_font_size=16, label
     # Add value annotations
     for i, (diff, per) in enumerate(zip(diffs, pers)):
         if diff >= 0:
-            ax.text(diff, i, f'+{diff/1000:.1f}k | (+{int(per)}%)', ha='left', va='center', fontsize=label_font_size)
+            ax.text(diff, i, f'+{diff/1000:.1f}k | +{int(per)}%', ha='left', va='center', fontsize=label_font_size)
         else:
-            ax.text(diff, i, f'{diff/1000:.1f}k | ({int(per)}%)', ha='left', va='center', fontsize=label_font_size)
+            ax.text(diff, i, f'{diff/1000:.1f}k | {int(per)}%', ha='left', va='center', fontsize=label_font_size)
     
     # Set title and labels
     ax.set_title(title+f"- {customer}", fontsize=title_font_size)
     #ax.set_ylabel('Destination Division', fontsize=label_font_size)
     ax.tick_params(axis='x', labelsize=xtick_font_size)
-    
+    ax.tick_params(axis='y', labelsize=xtick_font_size)
+
     # Remove spines from bottom, left, and right
     ax.spines['bottom'].set_visible(False)
     ax.spines['left'].set_visible(False)
@@ -149,18 +157,18 @@ def plot_bar_chart(df, customer, output_folder, title, title_font_size=16, label
 
     # Remove xticks showing diff values
     ax.set_xticks([])
+    plt.tight_layout()
 
     # Save the plot
     current_date = datetime.now().strftime("%Y%m%d")
-    plt.savefig(os.path.join(output_folder, f"{customer}_{title.lower().replace(' ', '_')}_{current_date}.png"))
+    plt.savefig(os.path.join(output_folder, f"{customer}_{title.lower().replace(' ', '_')}_{current_date}.png"),dpi=300)
     
     # Show the plot
-    plt.tight_layout()
     #plt.show()
 
-def plot_diff_terminal_type_bar_chart(df, customer, output_folder, title, title_font_size=16, label_font_size=12, xtick_font_size=10):
+def plot_diff_terminal_type_bar_chart(df, customer, output_folder, title, title_font_size=16, label_font_size=20, xtick_font_size=15):
     # Set figure size
-    fig = plt.figure(figsize=(14, 5))
+    fig = plt.figure(figsize=(15, 8))
     
     # Create a new axis
     ax = fig.add_subplot(111)
@@ -177,15 +185,16 @@ def plot_diff_terminal_type_bar_chart(df, customer, output_folder, title, title_
     # Add value annotations
     for i, (diff, per) in enumerate(zip(diffs, pers)):
         if diff >= 0:
-            ax.text(diff, i, f'+{diff/1000:.1f}k | (+{int(per)}%)', ha='left', va='center', fontsize=label_font_size)
+            ax.text(diff, i, f'+{diff/1000:.1f}k | +{int(per)}%', ha='left', va='center', fontsize=label_font_size)
         else:
-            ax.text(diff, i, f'{diff/1000:.1f}k | ({int(per)}%)', ha='left', va='center', fontsize=label_font_size)
+            ax.text(diff, i, f'{diff/1000:.1f}k | {int(per)}%', ha='left', va='center', fontsize=label_font_size)
     
     # Set title and labels
-    ax.set_title(title+f"- {customer}", fontsize=title_font_size)
+    ax.set_title(title+f" - {customer}", fontsize=title_font_size,loc='center')
     #ax.set_ylabel('Destination Division', fontsize=label_font_size)
     ax.tick_params(axis='x', labelsize=xtick_font_size)
-    
+    ax.tick_params(axis='y', labelsize=xtick_font_size)
+
     # Remove spines from bottom, left, and right
     ax.spines['bottom'].set_visible(False)
     ax.spines['left'].set_visible(False)
@@ -195,12 +204,12 @@ def plot_diff_terminal_type_bar_chart(df, customer, output_folder, title, title_
     
     # Remove xticks showing diff values
     ax.set_xticks([])
+    plt.tight_layout()
 
     # Save the plot
     current_date = datetime.now().strftime("%Y%m%d")
-    plt.savefig(os.path.join(output_folder, f"{customer}_TerminalType_{current_date}.png"))
+    plt.savefig(os.path.join(output_folder, f"{customer}_TerminalType_{current_date}.png"),dpi=300)
     
     # Show the plot
-    plt.tight_layout()
     #plt.show()
     

@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import plots
 import datetime,datetime
-###
+####
 db = pd.read_excel('Input/amazon.xlsx')
 ter_type = pd.read_excel('Input/Terminal Type.xlsx')
 

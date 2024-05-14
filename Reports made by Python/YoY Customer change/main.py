@@ -44,7 +44,7 @@ division_notations= {
                     }
 
 
-
+#
 
 """ Pull VT DATA and preprocess the data"""
 #path=r"C:\My Folder\Python Projects\Reports\YoY Customer change\Input\yoy_data.xlsx"

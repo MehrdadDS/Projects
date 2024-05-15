@@ -4,7 +4,7 @@ import schedule
 import time
 
 # Telegram bot API token
-TOKEN = "6973724292:AAH4XTP3y1a-6EKi0yFBcqfSR45TsznSMJI"
+TOKEN = ""
 
 # Your cryptocurrency portfolio
 portfolio = {

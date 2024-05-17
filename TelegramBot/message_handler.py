@@ -1,11 +1,12 @@
 import telebot
 
 
-bot = telebot.TeleBot('..')
+bot = telebot.TeleBot('6973724292:AAH4XTP3y1a-6EKi0yFBcqfSR45TsznSMJI')
 
 @bot.message_handler(commands=['start'])
 def welcome(message):
     bot.send_message(message.chat.id,'welcome to Mehrdad bot.')
+    bot.send_message(message.chat.id,f'{message.chat.id}')
     bot.reply_to(message,'This is a reply')
     bot.register_next_step_handler(message,process_name)
 

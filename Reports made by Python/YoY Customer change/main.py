@@ -98,7 +98,7 @@ yoy_pivot_region['per'].replace([np.inf],100,inplace=True)
 yoy_pivot_region.head()
 condition = ((yoy_pivot_region['per'] > pcs_per_reg) & (yoy_pivot_region['diff'] > pcs_thr_reg)) | ((yoy_pivot_region['per'] < -1 * pcs_per_reg) & (yoy_pivot_region['diff'] < -1 * pcs_thr_reg))
 region_growth = yoy_pivot_region[condition].sort_values(by='diff')
-
+yoy_pivot_region.to_csv('yoy_pivot_region.csv')
 """Creating Pie chart based on Customers"""
 yoy_customer_piechart = yoy.pivot_table(values='Pieces',index='Master Client',columns='Year',aggfunc='sum').reset_index().fillna(0)
 yoy_customer_piechart['diff'] = np.round(yoy_customer_piechart.iloc[:,2] - yoy_customer_piechart.iloc[:,1])

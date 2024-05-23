@@ -5,7 +5,7 @@ from playsound import playsound
 
 # Connect to IBKR TWS or IB Gateway
 ib = IB()
-ib.connect('127.0.0.1', 7497, clientId=1)
+ib.connect('127.0.0.1', 7496, clientId=1)
 
 # Define the stock you want to trade
 stock = Stock('AAPL', 'SMART', 'USD')

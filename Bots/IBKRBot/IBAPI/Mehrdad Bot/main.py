@@ -6,6 +6,7 @@ import pandas as pd
 import datetime
 import time
 from threading import Thread
+from indicators import TechnicalIndicators
 
 class IBApi(EWrapper, EClient):
     def __init__(self):
@@ -21,6 +22,9 @@ class IBApi(EWrapper, EClient):
     @iswrapper
     def historicalDataEnd(self, reqId, start, end):
         self.disconnect()
+
+
+
 
 class TradingApp:
     def __init__(self):
@@ -47,11 +51,6 @@ class TradingApp:
         df.set_index("Date", inplace=True)
         return df
     
-    def calculate_indicators(self, df):
-        df["MA34"] = df["Close"].rolling(window=34).mean()
-        df["MA131"] = df["Close"].rolling(window=131).mean()
-        df["EMA12"] = df["Close"].ewm(span=12, adjust=False).mean()
-        return df
     
     def check_conditions(self, df):
         if (df["Close"].iloc[-1] > df["MA34"].iloc[-1]) and (df["MA34"].iloc[-1] > df["MA131"].iloc[-1]):
@@ -66,48 +65,6 @@ class TradingApp:
         
         else : return False
 
-    def wavy_tunnel(self,df):
-        # Ensure 'Close', 'High', and 'Low' columns exist
-        required_columns = ['Close', 'High', 'Low']
-        for col in required_columns:
-            if col not in df.columns:
-                raise ValueError(f"DataFrame must contain '{col}' column")
-
-        # Part 1: Wave Plot
-        wave_length = 34
-        df['Wave_EMA_High'] = df['High'].ewm(span=wave_length, adjust=False).mean()
-        df['Wave_EMA_Close'] = df['Close'].ewm(span=wave_length, adjust=False).mean()
-        df['Wave_EMA_Low'] = df['Low'].ewm(span=wave_length, adjust=False).mean()
-
-        # Part 2: Tunnel Plot
-        length_tun_high = 169
-        length_tun_low = 144
-        df['Tunnel_EMA_High'] = df['Close'].ewm(span=length_tun_high, adjust=False).mean()
-        df['Tunnel_EMA_Low'] = df['Close'].ewm(span=length_tun_low, adjust=False).mean()
-
-        # Part 3: Filter 12 EMA
-        length_filter = 12
-        df['EMA_12_Filter'] = df['Close'].ewm(span=length_filter, adjust=False).mean()
-
-        # Part 4: Action bands plot
-        band_percentage = 50 / 100
-        df['Band_Distance'] = df['Wave_EMA_Close'] * band_percentage
-        df['Upper_Band'] = df['Wave_EMA_Close'] + df['Band_Distance']
-        df['Lower_Band'] = df['Wave_EMA_Close'] - df['Band_Distance']
-
-        # Part 5: Weekly Bands (assuming weekly data is provided in the same DataFrame for simplicity)
-        # Assuming df contains weekly data under a different column for simplicity
-        df['Weekly_EMA'] = df['Close'].ewm(span=wave_length, adjust=False).mean()
-        df['Weekly_Upper_Band'] = df['Weekly_EMA'] + df['Band_Distance']
-        df['Weekly_Lower_Band'] = df['Weekly_EMA'] - df['Band_Distance']
-
-        # Part 6: Support Band
-        support_length = 21
-        df['SMA'] = df['Close'].rolling(window=support_length).mean()
-        df['EMA'] = df['Close'].ewm(span=support_length, adjust=False).mean()
-
-        # Fill the DataFrame with necessary calculations
-        return df
 
 
     def run_strategy(self, tickers):
@@ -118,9 +75,12 @@ class TradingApp:
             for duration, bar_size in [("30 D", "15 mins"), ("60 D", "1 hour"), ("120 D", "4 hours"), ("1 Y", "1 day"), ("2 Y", "1 week")]:
                 df = self.fetch_historical_data(ticker, duration, bar_size)
                 time.sleep(5)
-                #df = self.calculate_indicators(df)
-                #df = self.calculate_macd(df)
-                df = self.wavy_tunnel(df)
+                # Initialize the TechnicalIndicators class with the dataframe
+                df_for_TA = TechnicalIndicators(df)
+                # Calculate MACD and Wavy Tunnel indicators
+                df = df_for_TA.calculate_macd()
+                df = df_for_TA.wavy_tunnel()
+
                 data = pd.concat([data,df])
             
             self.db[ticker] = data
@@ -132,28 +92,6 @@ class TradingApp:
         self.app.disconnect()
         self.app_thread.join()
 
-
-    # Calculate Technical Indicators
-    def calculate_macd(df):
-    # Ensure 'Close' column exists
-        if 'Close' not in df.columns:
-            raise ValueError("DataFrame must contain 'Close' column")
-        # Calculate the short-term EMA (12 periods)
-        short_ema = df['Close'].ewm(span=12, adjust=False).mean()
-        # Calculate the long-term EMA (26 periods)
-        long_ema = df['Close'].ewm(span=26, adjust=False).mean()
-        # Calculate the MACD line
-        macd_line = short_ema - long_ema
-        # Calculate the Signal line (9 periods EMA of MACD line)
-        signal_line = macd_line.ewm(span=9, adjust=False).mean()
-        # Calculate the MACD Histogram
-        macd_histogram = macd_line - signal_line
-        
-        # Add these values to the dataframe
-        df['MACD_Line'] = macd_line
-        df['Signal_Line'] = signal_line
-        df['MACD_Histogram'] = macd_histogram     
-        return df
 
 
 

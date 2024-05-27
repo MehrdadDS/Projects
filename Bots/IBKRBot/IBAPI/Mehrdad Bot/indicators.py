@@ -70,3 +70,24 @@ class TechnicalIndicators:
 
         # Fill the DataFrame with necessary calculations
         return self.df
+    
+
+
+        def ichimoku(self):
+        high_9 = self.df['High'].rolling(window=9).max()
+        low_9 = self.df['Low'].rolling(window=9).min()
+        self.df['Tenkan_sen'] = (high_9 + low_9) / 2
+
+        high_26 = self.df['High'].rolling(window=26).max()
+        low_26 = self.df['Low'].rolling(window=26).min()
+        self.df['Kijun_sen'] = (high_26 + low_26) / 2
+
+        self.df['Senkou_Span_A'] = ((self.df['Tenkan_sen'] + self.df['Kijun_sen']) / 2).shift(26)
+
+        high_52 = self.df['High'].rolling(window=52).max()
+        low_52 = self.df['Low'].rolling(window=52).min()
+        self.df['Senkou_Span_B'] = ((high_52 + low_52) / 2).shift(26)
+
+        self.df['Chikou_Span'] = self.df['Close'].shift(-26)
+
+        return self.df

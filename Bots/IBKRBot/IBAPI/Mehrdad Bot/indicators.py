@@ -64,16 +64,16 @@ class TechnicalIndicators:
         self.df['Weekly_Lower_Band'] = self.df['Weekly_EMA'] - self.df['Band_Distance']
 
         # Part 6: Support Band
-        support_length = 21
-        self.df['SMA'] = self.df['Close'].rolling(window=support_length).mean()
-        self.df['EMA'] = self.df['Close'].ewm(span=support_length, adjust=False).mean()
+        #support_length = 21
+        #self.df['SMA'] = self.df['Close'].rolling(window=support_length).mean()
+        #self.df['EMA'] = self.df['Close'].ewm(span=support_length, adjust=False).mean()
 
         # Fill the DataFrame with necessary calculations
         return self.df
     
 
 
-        def ichimoku(self):
+    def ichimoku(self):
         high_9 = self.df['High'].rolling(window=9).max()
         low_9 = self.df['Low'].rolling(window=9).min()
         self.df['Tenkan_sen'] = (high_9 + low_9) / 2

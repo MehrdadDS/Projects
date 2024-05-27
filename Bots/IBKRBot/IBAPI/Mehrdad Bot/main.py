@@ -48,45 +48,31 @@ class TradingApp:
         df = pd.DataFrame(self.app.data[1], columns=["Date", "Open", "High", "Low", "Close", "Volume"])
         df["Date"] = pd.to_datetime(df["Date"])
         df.insert(1,"Time Frame",bar_size)
+        df.insert(1,"Ticker",ticker)
         df.set_index("Date", inplace=True)
         return df
     
     
-    def check_conditions(self, df):
-        if (df["Close"].iloc[-1] > df["MA34"].iloc[-1]) and (df["MA34"].iloc[-1] > df["MA131"].iloc[-1]):
-            return True
-        return False
-    
-
-    def swing_trader_check_conditions(self,df):
-        # Check first state: Wave crosses above the Tunnel
-        " When close is above High of the wave | High of Wave is above High of Tunnel "
-        if (df["Close"].iloc[-1] > df["Wave_EMA_High"].iloc[-1]) and (df["Wave_EMA_High"].iloc[-1] > df["Tunnel_EMA_High"].iloc[-1]) : return True 
-        
-        else : return False
-
-
-
-    def run_strategy(self, tickers):
+    def create_historical_database(self, tickers):
         self.db = {}
         for ticker in tickers:
             data = pd.DataFrame()
             print(f"Checking {ticker}")
-            for duration, bar_size in [("30 D", "15 mins"), ("60 D", "1 hour"), ("120 D", "4 hours"), ("1 Y", "1 day"), ("2 Y", "1 week")]:
+            for duration, bar_size in [("30 D", "15 mins"), ("60 D", "1 hour"), ("90 D", "4 hours"), ("1 Y", "1 day"), ("2 Y", "1 week")]:
                 df = self.fetch_historical_data(ticker, duration, bar_size)
                 time.sleep(5)
+
+                
                 # Initialize the TechnicalIndicators class with the dataframe
                 df_for_TA = TechnicalIndicators(df)
-                # Calculate MACD and Wavy Tunnel indicators
                 df = df_for_TA.calculate_macd()
                 df = df_for_TA.wavy_tunnel()
+                df = df_for_TA.ichimoku()
 
                 data = pd.concat([data,df])
             
             self.db[ticker] = data
-            
-            if bar_size == "1 hour" and self.check_conditions(df):
-                print(f"Buy signal for {ticker}")
+        return self.db
     
     def disconnect(self):
         self.app.disconnect()
@@ -97,7 +83,7 @@ class TradingApp:
 
 
 if __name__ == "__main__":
-    tickers = ["AAPL", "MSFT", "GOOG", "AMZN", "TSLA"]
+    tickers = ["AAPL", "TSLA"]
     trading_app = TradingApp()
-    trading_app.run_strategy(tickers)
+    trading_app.create_historical_database(tickers)
     trading_app.disconnect()

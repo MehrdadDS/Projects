@@ -13,9 +13,12 @@ def plot_yoy_growth(yoy_growth,yoy_pivot_by_years, starting_week, ending_week, p
 
     # Add annotations for diff and per values beside or below the bars
     for idx, (bar, diff, per) in enumerate(zip(bars, yoy_growth['diff'], yoy_growth['per'])):
-        diff_str = f'{int(diff / 1000)}k'  # Format diff as thousands with "k" suffix
+        if np.abs(diff) > 500000 : 
+            diff_str =  f'{diff / 1000000:.1f}M'
+        else:
+            diff_str = f'{int(diff / 1000)}k'  # Format diff as thousands with "k" suffix
         #per_str = f'{int(per)}%'
-        if per > 3000:
+        if per > 800:
             per_str = '\u221e'
         else:
             per_str = f'{int(per)}%'  # Format per as percentage without decimal points

@@ -7,6 +7,7 @@ import datetime
 import time
 from threading import Thread
 from indicators import TechnicalIndicators
+from Strategeies import TradingStrategies
 
 class IBApi(EWrapper, EClient):
     def __init__(self):
@@ -58,7 +59,7 @@ class TradingApp:
         for ticker in tickers:
             data = pd.DataFrame()
             print(f"Checking {ticker}")
-            for duration, bar_size in [("30 D", "15 mins"), ("60 D", "1 hour"), ("90 D", "4 hours"), ("1 Y", "1 day"), ("2 Y", "1 week")]:
+            for duration, bar_size in [("15 D", "5 mins"),("30 D", "15 mins"), ("60 D", "1 hour"), ("90 D", "4 hours"), ("1 Y", "1 day"), ("2 Y", "1 week")]:
                 df = self.fetch_historical_data(ticker, duration, bar_size)
                 time.sleep(5)
 
@@ -83,7 +84,26 @@ class TradingApp:
 
 
 if __name__ == "__main__":
-    tickers = ["AAPL", "TSLA"]
+    tickers = ["MCS"]
     trading_app = TradingApp()
-    trading_app.create_historical_database(tickers)
+    stocks_historical_data = trading_app.create_historical_database(tickers)
+    
+    
+    # Applying a specific strategy
+    signals={}
+    for ticker in stocks_historical_data.keys():
+        ticker_data = stocks_historical_data[ticker]
+        for tf in set(ticker_data['Time Frame']):
+            feeded_data_to_strategy = ticker_data[ticker_data['Time Frame']==tf]
+            # Applying the strategies and it should bring a dataframe with signals
+            #signals = trading_app.st
+            strategy = TradingStrategies(feeded_data_to_strategy)
+            # Use a specific strategy
+            result = strategy.strategy_two(tf)
+            if result['trade_trigger']=="Yes":
+              signals[len(signals)+1]=result
+
+    signals = pd.DataFrame.from_dict(signals,orient='index')
+    print(signals)
+
     trading_app.disconnect()

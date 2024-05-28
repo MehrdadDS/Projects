@@ -33,6 +33,7 @@ class TradingStrategies:
             trade_trigger = 'No'
 
             df = self.df[self.df["Time Frame"] == time_frame]
+            ticker = df['Ticker'][0]
             if df.empty:
                 logging.warning(f"No data found for the time frame: {time_frame}")
                 return trade_trigger, time_frame, None, None, None
@@ -70,20 +71,31 @@ class TradingStrategies:
                              f'\n- Potential Loss: {potential_loss}%'
                              f'\n- Potential Profit: {potential_profit}%')
 
-                return trade_trigger, time_frame, entry_point, stoploss, target
+                return {'ticker':ticker,'trade_trigger':trade_trigger, 'time_frame':time_frame, 'entry_point':entry_point, 'stoploss':stoploss, 'target':target,'Risk/Reward':potential_profit / potential_loss}
             else:
                 logging.info('No setup found')
-                return trade_trigger, time_frame, None, None, None
+                return {'ticker':ticker,'trade_trigger':trade_trigger, 'time_frame':time_frame, 'entry_point':None, 'stoploss':None, 'target':None,'Risk/Reward':None}
 
         except KeyError as e:
             logging.error(f"KeyError: {e}")
-            return trade_trigger, time_frame, None, None, None
+            return {'ticker':ticker,'trade_trigger':trade_trigger, 'time_frame':time_frame, 'entry_point':None, 'stoploss':None, 'target':None,'Risk/Reward':None}
         except IndexError as e:
             logging.error(f"IndexError: {e}")
-            return trade_trigger, time_frame, None, None, None
+            return {'ticker':ticker,'trade_trigger':trade_trigger, 'time_frame':time_frame, 'entry_point':None, 'stoploss':None, 'target':None,'Risk/Reward':None}
         except Exception as e:
             logging.error(f"An unexpected error occurred: {e}")
-            return trade_trigger, time_frame, None, None, None
+            return {'ticker':ticker,'trade_trigger':trade_trigger, 'time_frame':time_frame, 'entry_point':None, 'stoploss':None, 'target':None,'Risk/Reward':None}
+
+
+
+    def strategy_two(self,time_frame):
+            db = self.df.copy(deep=True)
+            trade_trigger = 'Yes'
+
+            df = self.df[self.df["Time Frame"] == time_frame]
+            ticker = df['Ticker'][0]
+
+            return {'ticker':ticker,'trade_trigger':trade_trigger, 'time_frame':time_frame, 'entry_point':20, 'stoploss':15, 'target':40}
 
 # Example usage:
 # df = pd.read_csv('your_data.csv')  # Load your data into a DataFrame

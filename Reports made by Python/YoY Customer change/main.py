@@ -143,7 +143,7 @@ pdf_pages.savefig(customer_pie_chart)
 for division in division_list:
     yoy_pivot_region_filtered = region_growth[region_growth['Dest Division'] == division]
     fig = plt.figure(figsize=(12, 8))
-    fig = plots.plot_yoy_growth_div_trunc(yoy_pivot_region_filtered,yoy_division_piechart_dic, plot_title=division, title_fontsize=22, tick_fontsize=19, annotation_fontsize=18,max_name_length=12)
+    fig = plots.plot_yoy_growth_div_trunc(yoy_pivot_region_filtered,yoy_division_piechart_dic, plot_title=division, title_fontsize=25, tick_fontsize=19, annotation_fontsize=18,max_name_length=12)
     pdf_pages.savefig(fig)
     plt.close(fig)
 

@@ -8,21 +8,28 @@ import time
 from threading import Thread
 from indicators import TechnicalIndicators
 from Strategeies import TradingStrategies
+from order_management import OrderManager
+from telegrambot import TelegramBot
 
 class IBApi(EWrapper, EClient):
     def __init__(self):
         EClient.__init__(self, self)
         self.data = {}
     
+
+    def nextValidId(self, orderId):
+        self.nextOrderId = orderId
+        print("Next valid order id: ", orderId)
+
     @iswrapper
     def historicalData(self, reqId, bar):
         if reqId not in self.data:
             self.data[reqId] = []
         self.data[reqId].append([bar.date, bar.open, bar.high, bar.low, bar.close, bar.volume])
     
-    @iswrapper
-    def historicalDataEnd(self, reqId, start, end):
-        self.disconnect()
+    #@iswrapper
+    #def historicalDataEnd(self, reqId, start, end):
+    #    self.disconnect()
 
 
 
@@ -83,8 +90,10 @@ class TradingApp:
 
 
 
+
+
 if __name__ == "__main__":
-    tickers = ["MCS"]
+    tickers = ["AAPL"]#,"NIO","GME","TOON"]
     trading_app = TradingApp()
     stocks_historical_data = trading_app.create_historical_database(tickers)
     
@@ -95,15 +104,22 @@ if __name__ == "__main__":
         ticker_data = stocks_historical_data[ticker]
         for tf in set(ticker_data['Time Frame']):
             feeded_data_to_strategy = ticker_data[ticker_data['Time Frame']==tf]
-            # Applying the strategies and it should bring a dataframe with signals
-            #signals = trading_app.st
             strategy = TradingStrategies(feeded_data_to_strategy)
-            # Use a specific strategy
             result = strategy.strategy_two(tf)
             if result['trade_trigger']=="Yes":
               signals[len(signals)+1]=result
-
     signals = pd.DataFrame.from_dict(signals,orient='index')
     print(signals)
+
+    # need to place order using order management module
+    # Placing orders based on signals
+    order_manager = OrderManager(trading_app.app,10000)
+    #order_manager.api_client = trading_app.app
+    order_manager.api_client.nextOrderId = trading_app.app.nextOrderId
+    order_manager.process_signals(signals)
+
+
+
+
 
     trading_app.disconnect()

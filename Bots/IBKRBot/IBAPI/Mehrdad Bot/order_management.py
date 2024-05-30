@@ -1,8 +1,13 @@
-class OrderManager:
-    def __init__(self, api_client: IBApiClient, initial_balance: float):
+from ibapi.contract import Contract
+from ibapi.order import Order
+import pandas as pd
+from telegrambot import TelegramBot
+
+class OrderManager(Contract,Order):
+    def __init__(self, api_client, initial_balance: float):
         self.api_client = api_client
         self.balance = initial_balance
-        self.api_client.connect("127.0.0.1", 7497, 0)
+        #self.api_client.connect("127.0.0.1", 7496, 0)
         self.api_client.nextOrderId = None
         self.api_client.reqIds(-1)
 
@@ -23,9 +28,13 @@ class OrderManager:
         order.totalQuantity = quantity
         order.lmtPrice = entry_point
         order.auxPrice = stoploss
+        order.eTradeOnly = ""
+        order.firmQuoteOnly = ""
 
         self.api_client.placeOrder(self.api_client.nextOrderId, contract, order)
         print(f"Placed order for {ticker} with entry point {entry_point} and stoploss {stoploss}")
+        TelegramBot.tlg_send_message(f"{self.api_client.nextOrderId}) Buy order: {ticker}\n- entry point:@{entry_point}\n- stoploss:@{stoploss}")
+        self.api_client.nextOrderId +=1
 
         self.balance -= entry_point * quantity
 
@@ -39,6 +48,6 @@ class OrderManager:
                 time_frame = row['time_frame']
 
                 # Assuming a quantity of 100 for simplicity
-                quantity = 100
+                quantity = 1
 
                 self.place_buy_stop_limit_order(ticker, entry_point, stoploss, quantity)

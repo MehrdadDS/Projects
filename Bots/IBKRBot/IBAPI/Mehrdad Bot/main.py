@@ -9,6 +9,7 @@ from threading import Thread
 from indicators import TechnicalIndicators
 from Strategeies import TradingStrategies
 from order_management import OrderManager
+from telegrambot import TelegramBot
 
 class IBApi(EWrapper, EClient):
     def __init__(self):
@@ -92,7 +93,7 @@ class TradingApp:
 
 
 if __name__ == "__main__":
-    tickers = ["AAPL","NIO","GME","TOON"]
+    tickers = ["AAPL"]#,"NIO","GME","TOON"]
     trading_app = TradingApp()
     stocks_historical_data = trading_app.create_historical_database(tickers)
     

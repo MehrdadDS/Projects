@@ -1,6 +1,7 @@
 from ibapi.contract import Contract
 from ibapi.order import Order
 import pandas as pd
+from telegrambot import TelegramBot
 
 class OrderManager(Contract,Order):
     def __init__(self, api_client, initial_balance: float):
@@ -31,8 +32,9 @@ class OrderManager(Contract,Order):
         order.firmQuoteOnly = ""
 
         self.api_client.placeOrder(self.api_client.nextOrderId, contract, order)
-        self.api_client.nextOrderId +=1
         print(f"Placed order for {ticker} with entry point {entry_point} and stoploss {stoploss}")
+        TelegramBot.tlg_send_message(f"{self.api_client.nextOrderId}) Buy order: {ticker}\n- entry point:@{entry_point}\n- stoploss:@{stoploss}")
+        self.api_client.nextOrderId +=1
 
         self.balance -= entry_point * quantity
 

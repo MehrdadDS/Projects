@@ -20,7 +20,7 @@ for customer in customers_list:
     df = db[db['Master Client']==customer]
     print(customer)
     # Create a pivot table for divisions
-    yoy_pivot_by_division = df.pivot_table(values='Pieces',columns='Year',index='Dest Division',aggfunc='sum').reset_index()
+    yoy_pivot_by_division = df.pivot_table(values='Pieces',columns='Year',index='Dest Division',aggfunc='sum').reset_index().fillna(0)
     try:
         yoy_pivot_by_division['diff'] = yoy_pivot_by_division.iloc[:, 2] - yoy_pivot_by_division.iloc[:, 1]
     except IndexError:
@@ -35,6 +35,7 @@ for customer in customers_list:
 
     # Create a pivot table for terminals
     yoy_pivot_by_terminal = df.pivot_table(values='Pieces',columns='Year',index='Dest Terminal',aggfunc='sum').reset_index().fillna(0)
+    if 2023 not in yoy_pivot_by_terminal.columns: yoy_pivot_by_terminal.insert(1,column=2023,value=0)
     yoy_pivot_by_terminal['diff'] = yoy_pivot_by_terminal.iloc[:,2] - yoy_pivot_by_terminal.iloc[:,1]
     yoy_pivot_by_terminal['per'] = np.round(100*((yoy_pivot_by_terminal.iloc[:,2] / yoy_pivot_by_terminal.iloc[:,1])-1),2)
     yoy_pivot_by_terminal['per'].replace([np.inf],100,inplace=True)
@@ -50,8 +51,10 @@ for customer in customers_list:
 
     yoy_ter_type = pd.merge(df,ter_type[['Dest Terminal','Terminal Type']],how='left',on='Dest Terminal')
     yoy_ter_type = yoy_ter_type.pivot_table(values='Pieces',columns='Year',index='Terminal Type',aggfunc='sum').reset_index().fillna(0)
+    if 2023 not in yoy_ter_type.columns: yoy_ter_type.insert(1,column=2023,value=0)
+    
     yoy_ter_type['diff'] = yoy_ter_type.iloc[:,2] - yoy_ter_type.iloc[:,1]
     yoy_ter_type['per'] = np.round(100*((yoy_ter_type.iloc[:,2] / yoy_ter_type.iloc[:,1])-1),2)
     yoy_ter_type['per'].replace([np.inf],100,inplace=True)
     #yoy_ter_type = yoy_ter_type.sort_values('diff',ascending=True)
-    plots.plot_diff_terminal_type_bar_chart(yoy_ter_type, customer, output_folder,"YoY YTD Terminal Types Performance Comparison" , title_font_size=30, label_font_size=30, xtick_font_size=40)
+    plots.plot_diff_terminal_type_bar_chart(yoy_ter_type, customer, output_folder,"YoY YTD Terminal Types Performance Comparison" , title_font_size=28, label_font_size=30, xtick_font_size=40)

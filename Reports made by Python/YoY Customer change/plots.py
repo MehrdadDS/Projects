@@ -3,7 +3,7 @@ import os
 import numpy as np
 
 def plot_yoy_growth(yoy_growth,yoy_pivot_by_years, starting_week, ending_week, plot_title,max_name_length=15, annotation_fontsize=15):
-    fig = plt.figure(figsize=(15, 8))
+    fig = plt.figure(figsize=(20, 10))
 
     # Truncate master client names
     truncated_names = [name[:max_name_length] + '...' if len(name) > max_name_length else name for name in yoy_growth['Master Client']]
@@ -31,7 +31,7 @@ def plot_yoy_growth(yoy_growth,yoy_pivot_by_years, starting_week, ending_week, p
     percentage = yoy_pivot_by_years['per'][0]
     diff_str_div = f'{yoy_pivot_by_years["diff"].iloc[0]/1000000:.2f}M'
     # Add the title
-    plt.title(f"{plot_title}:  YOY YTD is {percentage}%    |    Volume Change is {diff_str_div}", fontsize=16)
+    plt.title(f"{plot_title}:  YOY YTD is {percentage}%    |    Volume Change is {diff_str_div}", fontsize=19)
 
     # Remove y-axis ticks and labels
     plt.tick_params(axis='y', which='both', left=False, right=False, labelleft=False)
@@ -139,13 +139,13 @@ def plot_yoy_growth_div_trunc(yoy_growth, yoy_division_dic, plot_title, title_fo
 
     # Remove border box around the graph
     plt.box(False)
-
+    plt.tight_layout()  # Adjust layout to prevent overlap
     # Save the chart as a PDF file in the output folder
     output_folder = "output"
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
     pdf_file_path = os.path.join(output_folder, "yoy_customer_growth_analysis.pdf")
-    plt.tight_layout()  # Adjust layout to prevent overlap
+    
     #plt.savefig(pdf_file_path)
 
     #plt.show()

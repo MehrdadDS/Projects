@@ -14,7 +14,7 @@ class TestApp(EClient, EWrapper):
         sub.instrument = "STK"
         sub.locationCode = "STK.US.MAJOR"
         
-        #sub.locationCode = "STK.NASDAQ"
+        sub.locationCode = "STK.NASDAQ"
         #sub.scanCode = "TOP_TRADE_COUNT"
         sub.scanCode = "TOP_OPEN_PERC_GAIN"
 

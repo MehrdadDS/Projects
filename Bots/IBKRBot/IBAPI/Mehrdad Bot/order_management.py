@@ -29,7 +29,7 @@ class OrderManager:
         take_profit.totalQuantity = quantity
         take_profit.lmtPrice = take_profit_limit_price
         take_profit.parentId = order_id
-        take_profit.transmit = False
+        take_profit.transmit = True
         take_profit.eTradeOnly=""
         take_profit.firmQuoteOnly = ""
 
@@ -86,3 +86,5 @@ class OrderManager:
         contract.exchange = "SMART"
         contract.currency = "USD"
         return contract
+
+

@@ -17,13 +17,13 @@ class TechnicalIndicators:
         if 'Close' not in self.df.columns:
             raise ValueError("DataFrame must contain 'Close' column")
         # Calculate the short-term EMA (12 periods)
-        short_ema = self.df['Close'].ewm(span=12, adjust=False).mean()
+        short_ema = round(self.df['Close'].ewm(span=12, adjust=False).mean(),2)
         # Calculate the long-term EMA (26 periods)
-        long_ema = self.df['Close'].ewm(span=26, adjust=False).mean()
+        long_ema = round(self.df['Close'].ewm(span=26, adjust=False).mean(),2)
         # Calculate the MACD line
         macd_line = short_ema - long_ema
         # Calculate the Signal line (9 periods EMA of MACD line)
-        signal_line = macd_line.ewm(span=9, adjust=False).mean()
+        signal_line = round(macd_line.ewm(span=9, adjust=False).mean(),2)
         # Calculate the MACD Histogram
         macd_histogram = macd_line - signal_line
         
@@ -37,19 +37,19 @@ class TechnicalIndicators:
         
         # Part 1: Wave Plot
         wave_length = 34
-        self.df['Wave_EMA_High'] = self.df['High'].ewm(span=wave_length, adjust=False).mean()
-        self.df['Wave_EMA_Close'] = self.df['Close'].ewm(span=wave_length, adjust=False).mean()
-        self.df['Wave_EMA_Low'] = self.df['Low'].ewm(span=wave_length, adjust=False).mean()
+        self.df['Wave_EMA_High'] = round(self.df['High'].ewm(span=wave_length, adjust=False).mean(),2)
+        self.df['Wave_EMA_Close'] = round(self.df['Close'].ewm(span=wave_length, adjust=False).mean(),2)
+        self.df['Wave_EMA_Low'] = round(self.df['Low'].ewm(span=wave_length, adjust=False).mean(),2)
 
         # Part 2: Tunnel Plot
         length_tun_high = 169
         length_tun_low = 144
-        self.df['Tunnel_EMA_High'] = self.df['Close'].ewm(span=length_tun_high, adjust=False).mean()
-        self.df['Tunnel_EMA_Low'] = self.df['Close'].ewm(span=length_tun_low, adjust=False).mean()
+        self.df['Tunnel_EMA_High'] = round(self.df['Close'].ewm(span=length_tun_high, adjust=False).mean(),2)
+        self.df['Tunnel_EMA_Low'] = round(self.df['Close'].ewm(span=length_tun_low, adjust=False).mean(),2)
 
         # Part 3: Filter 12 EMA
         length_filter = 12
-        self.df['EMA_12_Filter'] = self.df['Close'].ewm(span=length_filter, adjust=False).mean()
+        self.df['EMA_12_Filter'] = round(self.df['Close'].ewm(span=length_filter, adjust=False).mean(),2)
 
         # Part 4: Action bands plot
         band_percentage = 50 / 100
@@ -80,14 +80,14 @@ class TechnicalIndicators:
 
         high_26 = self.df['High'].rolling(window=26).max()
         low_26 = self.df['Low'].rolling(window=26).min()
-        self.df['Kijun_sen'] = (high_26 + low_26) / 2
+        self.df['Kijun_sen'] = round((high_26 + low_26) / 2,2)
 
-        self.df['Senkou_Span_A'] = ((self.df['Tenkan_sen'] + self.df['Kijun_sen']) / 2).shift(26)
+        self.df['Senkou_Span_A'] = round(((self.df['Tenkan_sen'] + self.df['Kijun_sen']) / 2).shift(26),2)
 
         high_52 = self.df['High'].rolling(window=52).max()
         low_52 = self.df['Low'].rolling(window=52).min()
-        self.df['Senkou_Span_B'] = ((high_52 + low_52) / 2).shift(26)
+        self.df['Senkou_Span_B'] = round(((high_52 + low_52) / 2).shift(26),2)
 
-        self.df['Chikou_Span'] = self.df['Close'].shift(-26)
+        self.df['Chikou_Span'] = round(self.df['Close'].shift(-26),2)
 
         return self.df

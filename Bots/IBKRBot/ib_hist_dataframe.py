@@ -36,7 +36,7 @@ def histData(req_num,contract,duration,candle_size):
                           endDateTime='',
                           durationStr=duration,
                           barSizeSetting=candle_size,
-                          whatToShow='ADJUSTED_LAST',
+                          whatToShow='TRADES',
                           useRTH=1,
                           formatDate=1,
                           keepUpToDate=0,
@@ -53,7 +53,7 @@ time.sleep(1) # some latency added to ensure that the connection is established
 
 tickers = ["META","AMZN","INTC"]
 for ticker in tickers:
-    histData(tickers.index(ticker),usTechStk(ticker),'2 D', '5 mins')
+    histData(tickers.index(ticker),usTechStk(ticker),'3 Y', '1 W')
     time.sleep(5)
 
 ###################storing trade app object in dataframe#######################

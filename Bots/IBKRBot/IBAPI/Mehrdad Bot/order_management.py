@@ -4,6 +4,7 @@ from ibapi.order import Order
 import time
 from ibapi.contract import Contract
 import numpy as np
+import pandas as pd
 
 class OrderManager:
     def __init__(self, app, max_amount):
@@ -88,3 +89,11 @@ class OrderManager:
         return contract
 
 
+    def open_orders(self):
+        self.app.reqAllOpenOrders()
+        time.sleep(2)  # Wait for open orders to be received
+        open_orders_df = pd.DataFrame(self.app.open_orders, columns=[
+            'time_of_placing_order', 'ticker', 'type', 'action', 'quantity', 'entry_point', 
+            'stop_loss', 'filled_quantity', 'target_price'
+        ])
+        return open_orders_df

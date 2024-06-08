@@ -22,6 +22,7 @@ class IBApi(EWrapper, EClient):
         EClient.__init__(self, self)
         self.data = {}
         self.positions = []
+        self.open_orders = []
         self.nextOrderId = None
 
     def nextValidId(self, orderId):
@@ -52,6 +53,22 @@ class IBApi(EWrapper, EClient):
         else:
             self.data[reqId] = pd.concat((self.data[reqId],pd.DataFrame([{"Date":bar.date,"Open":bar.open,"High":bar.high,"Low":bar.low,"Close":bar.close,"Volume":bar.volume}])))
             #self.data[reqId].append({"Date":bar.date,"Open":bar.open,"High":bar.high,"Low":bar.low,"Close":bar.close,"Volume":bar.volume})
+
+    @iswrapper
+    def openOrder(self, orderId, contract, order, orderState):
+        self.open_orders.append({
+            'time_of_placing_order': datetime.now(),
+            'ticker': contract.symbol,
+            'type': order.orderType,
+            'action': order.action,
+            'quantity': order.totalQuantity,
+            'entry_point': order.lmtPrice,
+            'stop_loss': order.auxPrice if order.orderType == "STP" else None,
+            'filled_quantity': order.filledQuantity,
+            'target_price': order.lmtPrice if order.orderType == "LMT" else None
+        })
+
+
 """I changed this part
         if reqId not in self.data:
             self.data[reqId] = []
@@ -164,8 +181,18 @@ class Trader:
         positions_df = self.positions_manager.get_positions_df()
         print(positions_df)
         self.telegram_bot.tlg_send_message(f"Current Positions:\n{positions_df.to_string()}")
-
+    
+    
+    def get_open_orders(self):
+        open_orders_df = self.order_manager.open_orders()
+        print(open_orders_df)
+        self.telegram_bot.tlg_send_message(f"Open Orders:\n{open_orders_df.to_string()}")
+        return open_orders_df
+    
+    
     def run(self):
+        open_orders_df = self.get_open_orders()
+        print(f"open orders:\n{open_orders_df}")
         self.generate_signals()
         self.place_orders()
         self.check_positions()
@@ -178,4 +205,10 @@ if __name__ == "__main__":
     max_amount = 10000
 
     trader = Trader(tickers, bot_token, chat_id, max_amount)
-    trader.run()
+    i = 0
+    while i<2:
+        time.time
+        trader.run()
+        i +=1
+        time.sleep(30)
+    

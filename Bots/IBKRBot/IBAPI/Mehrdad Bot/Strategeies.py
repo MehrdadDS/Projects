@@ -3,6 +3,14 @@
 import pandas as pd
 import numpy as np
 
+
+
+import warnings
+warnings.filterwarnings("ignore")
+
+
+
+
 class TradingStrategies:
     def __init__(self, data):
         self.data = data
@@ -58,7 +66,7 @@ class TradingStrategies:
         df = db[db["Time Frame"] == time_frame]
         last_row = df.iloc[-1]
         ticker = last_row['Ticker']
-        print(f"start finding setup for {ticker} in {time_frame}")
+        #print(f"start finding setup for {ticker} in {time_frame}")
         
         if df.empty:
             print(f"No data found for the time frame: {time_frame}")
@@ -96,7 +104,9 @@ class TradingStrategies:
                     "entry_point": entry_price,
                     "stoploss": stop_loss,
                     "target": target_price,
-                    "risk_to_reward": risk_to_reward
+                    "risk_to_reward": risk_to_reward,
+                    "potential_profit":potential_profit,
+                    "potential_loss":potential_loss,
                 }     
             else:
                 signal={
@@ -104,7 +114,7 @@ class TradingStrategies:
                     "time_frame": time_frame,
                     "trade_trigger": "No",                    
                 }
-                print(f"No signal found for {ticker} in {time_frame} time frame")
+                print(f"{ticker} - No signal found  - {time_frame} time frame")
         else:
             signal={
             "ticker": ticker,

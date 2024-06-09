@@ -17,7 +17,7 @@ class OrderManager:
         parent_order.orderId = order_id
         parent_order.action = action
         parent_order.orderType = "LMT"
-        parent_order.totalQuantity = quantity
+        parent_order.totalQuantity = int(quantity)
         parent_order.lmtPrice = limit_price
         parent_order.transmit = False
         parent_order.eTradeOnly=""
@@ -27,7 +27,7 @@ class OrderManager:
         take_profit.orderId = order_id + 1
         take_profit.action = "SELL" if action == "BUY" else "BUY"
         take_profit.orderType = "LMT"
-        take_profit.totalQuantity = quantity
+        take_profit.totalQuantity = int(quantity)
         take_profit.lmtPrice = take_profit_limit_price
         take_profit.parentId = order_id
         take_profit.transmit = True
@@ -40,7 +40,7 @@ class OrderManager:
         stop_loss.action = "SELL" if action == "BUY" else "BUY"
         stop_loss.orderType = "STP"
         stop_loss.auxPrice = stop_loss_price
-        stop_loss.totalQuantity = quantity
+        stop_loss.totalQuantity = int(quantity)
         stop_loss.parentId = order_id
         stop_loss.transmit = True
         stop_loss.eTradeOnly=""
@@ -53,11 +53,11 @@ class OrderManager:
     def process_signals(self, signals_df):
         for index, signal in signals_df.iterrows():
             if signal['trade_trigger'] == 'Yes':
-                #quantity = self.calculate_quantity(signal['entry_point'])
-                quantity = 300
+                quantity = self.calculate_quantity(signal['entry_point'])
+                #quantity = 300
                 order_id = self.app.nextOrderId
                 action = "BUY"  # Assuming a long position for simplicity
-                limit_price = signal['entry_point'] -10
+                limit_price = signal['entry_point']
                 take_profit_limit_price = signal['target']
                 stop_loss_price = signal['stoploss']
                 
@@ -73,12 +73,14 @@ class OrderManager:
                         "ticker": signal['ticker'],
                         "executed": False,
                         "time_frame": signal['time_frame'],
-                        "risk_to_reward": signal['risk_to_reward']
+                        "risk_to_reward": signal['risk_to_reward'],
+                        "potential_profit":signal['potential_profit'],
+                        "potential_loss":signal['potential_loss'],
                     })
                     time.sleep(1)  # To ensure the order is placed
 
     def calculate_quantity(self, entry_price):
-        return round(self.max_amount / entry_price, 2)
+        return int(self.max_amount // entry_price)
 
     def create_contract(self, ticker):
         contract = Contract()
@@ -93,7 +95,7 @@ class OrderManager:
         self.app.reqAllOpenOrders()
         time.sleep(2)  # Wait for open orders to be received
         open_orders_df = pd.DataFrame(self.app.open_orders, columns=[
-            'time_of_placing_order', 'ticker', 'type', 'action', 'quantity', 'entry_point', 
-            'stop_loss', 'filled_quantity', 'target_price'
+            'order_id', 'ticker', 'type', 'action', 'quantity', 'entry_point', 
+            'stop_loss', 'filled_quantity', 'target_price', 'order_state', 'tif'#, 'time_placement'#, 'status_history'
         ])
         return open_orders_df

@@ -3,9 +3,9 @@
 import requests
 
 class TelegramBot:
-    def __init__(self, bot_token, chat_id):
-        self.bot_token = bot_token
-        self.chat_id = chat_id
+    def __init__(self):
+        self.bot_token = "6973724292:AAH4XTP3y1a-6EKi0yFBcqfSR45TsznSMJI"
+        self.chat_id = "83167574"
 
     def tlg_send_message(self, message):
         url = f"https://api.telegram.org/bot{self.bot_token}/sendMessage"

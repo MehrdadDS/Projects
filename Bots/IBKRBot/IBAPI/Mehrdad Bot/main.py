@@ -15,6 +15,11 @@ from positions import Positions
 from telegrambot import TelegramBot
 from ibapi.order import Order
 from datetime import datetime
+import sqlite3
+import warnings
+warnings.filterwarnings("ignore")
+
+
 
 
 class IBApi(EWrapper, EClient):
@@ -22,6 +27,7 @@ class IBApi(EWrapper, EClient):
         EClient.__init__(self, self)
         self.data = {}
         self.positions = []
+        self.open_orders = []
         self.nextOrderId = None
 
     def nextValidId(self, orderId):
@@ -52,6 +58,40 @@ class IBApi(EWrapper, EClient):
         else:
             self.data[reqId] = pd.concat((self.data[reqId],pd.DataFrame([{"Date":bar.date,"Open":bar.open,"High":bar.high,"Low":bar.low,"Close":bar.close,"Volume":bar.volume}])))
             #self.data[reqId].append({"Date":bar.date,"Open":bar.open,"High":bar.high,"Low":bar.low,"Close":bar.close,"Volume":bar.volume})
+
+    @iswrapper
+    def openOrder(self, orderId, contract, order, orderState):
+        self.open_orders.append({
+            'order_id': orderId,
+            'ticker': contract.symbol,
+            'type': order.orderType,
+            'action': order.action,
+            'quantity': int(order.totalQuantity),
+            'entry_point': order.lmtPrice,
+            'stop_loss': order.auxPrice if order.orderType == "STP" else None,
+            'filled_quantity': order.filledQuantity,
+            'target_price': order.lmtPrice if order.orderType == "LMT" else None,
+            'order_state': orderState.status,
+            'tif': order.tif,  # Time in force
+            'status_history': [],  # Initialize status history list
+            'time_placement': datetime.now()  # Capture current time
+        })
+
+    @iswrapper
+    def orderStatus(self, orderId, status, filled, remaining, avgFillPrice, permId,
+                    parentId, lastFillPrice, clientId, whyHeld, mktCapPrice):
+        for order in self.open_orders:
+            if order['order_id'] == orderId:
+                order['status_history'].append({
+                    'timestamp': datetime.now(),
+                    'status': status,
+                    'filled': filled,
+                    'remaining': remaining,
+                    'avg_fill_price': avgFillPrice,
+                    'last_fill_price': lastFillPrice,
+                })
+
+
 """I changed this part
         if reqId not in self.data:
             self.data[reqId] = []
@@ -127,10 +167,10 @@ class TradingApp:
         self.app_thread.join()
 
 class Trader:
-    def __init__(self, tickers, bot_token, chat_id, max_amount):
+    def __init__(self, tickers, max_amount):
         self.tickers = tickers
         self.trading_app = TradingApp()
-        self.telegram_bot = TelegramBot(bot_token, chat_id)
+        self.telegram_bot = TelegramBot()
         self.order_manager = OrderManager(self.trading_app.app, max_amount)
         self.positions_manager = Positions(self.trading_app.app)
         self.signals = {}
@@ -164,18 +204,34 @@ class Trader:
         positions_df = self.positions_manager.get_positions_df()
         print(positions_df)
         self.telegram_bot.tlg_send_message(f"Current Positions:\n{positions_df.to_string()}")
-
+    
+    
+    def get_open_orders(self):
+        open_orders_dataframe = []
+        open_orders_dataframe = self.order_manager.open_orders().drop_duplicates()
+        print(open_orders_dataframe)
+        #self.telegram_bot.tlg_send_message(f"Open Orders:\n{open_orders_df.to_string()}")
+        return open_orders_dataframe
+    
+    
     def run(self):
+        open_orders_df = self.get_open_orders()
         self.generate_signals()
         self.place_orders()
         self.check_positions()
         self.trading_app.disconnect()
 
 if __name__ == "__main__":
-    tickers = ["ICLN","PYPL"]#["NIO","ICLN","SHOP","GME","PYPL","TSLA","UPST","DLTR","BYD","ATOM","MCS","ABNB","SNOW"]  # Add more tickers if needed
-    bot_token = "6973724292:AAH4XTP3y1a-6EKi0yFBcqfSR45TsznSMJI"  # Replace with your actual Telegram bot token
-    chat_id = "83167574"  # Replace with your actual Telegram chat ID
+    tickers = ["NIO","ICLN","PYPL"]#,"SHOP","GME","PYPL","TSLA","UPST","DLTR","BYD","ATOM","MCS","ABNB","SNOW","RBLX","MSFT","DKNG"]  # Add more tickers if needed
+    #bot_token = "6973724292:AAH4XTP3y1a-6EKi0yFBcqfSR45TsznSMJI"  # Replace with your actual Telegram bot token
+    #chat_id = "83167574"  # Replace with your actual Telegram chat ID
     max_amount = 10000
 
-    trader = Trader(tickers, bot_token, chat_id, max_amount)
+    trader = Trader(tickers, max_amount)
+    #i = 0
+    #while i<2:
+    #    print(i,int(time.time()))
     trader.run()
+    #    i +=1
+    #print(time.sleep(90))
+    

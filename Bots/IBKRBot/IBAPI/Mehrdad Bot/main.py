@@ -16,6 +16,11 @@ from telegrambot import TelegramBot
 from ibapi.order import Order
 from datetime import datetime
 
+import warnings
+warnings.filterwarnings("ignore")
+
+
+
 
 class IBApi(EWrapper, EClient):
     def __init__(self):
@@ -61,7 +66,7 @@ class IBApi(EWrapper, EClient):
             'ticker': contract.symbol,
             'type': order.orderType,
             'action': order.action,
-            'quantity': order.totalQuantity,
+            'quantity': int(order.totalQuantity),
             'entry_point': order.lmtPrice,
             'stop_loss': order.auxPrice if order.orderType == "STP" else None,
             'filled_quantity': order.filledQuantity,
@@ -205,10 +210,10 @@ if __name__ == "__main__":
     max_amount = 10000
 
     trader = Trader(tickers, bot_token, chat_id, max_amount)
-    i = 0
-    while i<2:
-        time.time
-        trader.run()
-        i +=1
-        time.sleep(30)
+    #i = 0
+    #while i<2:
+    #    print(i,int(time.time()))
+    trader.run()
+    #    i +=1
+    #print(time.sleep(90))
     

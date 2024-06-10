@@ -10,10 +10,10 @@ TOKEN = "6973724292:AAH4XTP3y1a-6EKi0yFBcqfSR45TsznSMJI"
 
 # Your cryptocurrency portfolio
 portfolio = {
-    'bitcoin': 0.354,
-    'ethereum': 0.463,
-    'cardano': 13058,
-    'dogecoin':30115,
+    'bitcoin': 1,
+    'ethereum': 2,
+    'cardano': 1058,
+    'dogecoin':3115,
     #'polygon':1020,
     #'xrp':2288
 }
@@ -48,4 +48,4 @@ def send_portfolio_value(bot):
 # Infinite loop to fetch prices and send messages every second
 while True:
     send_portfolio_value(bot)
-    time.sleep(60)
+    time.sleep(310)

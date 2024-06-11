@@ -98,7 +98,7 @@ yoy_pivot_region['per'].replace([np.inf],100,inplace=True)
 yoy_pivot_region.head()
 condition = ((yoy_pivot_region['per'] > pcs_per_reg) & (yoy_pivot_region['diff'] > pcs_thr_reg)) | ((yoy_pivot_region['per'] < -1 * pcs_per_reg) & (yoy_pivot_region['diff'] < -1 * pcs_thr_reg))
 region_growth = yoy_pivot_region[condition].sort_values(by='diff')
-yoy_pivot_region.to_csv('yoy_pivot_region_return.csv')
+yoy_pivot_region.to_csv('yoy_pivot_region.csv')
 """Creating Pie chart based on Customers"""
 yoy_customer_piechart = yoy.pivot_table(values='Pieces',index='Master Client',columns='Year',aggfunc='sum').reset_index().fillna(0)
 yoy_customer_piechart['diff'] = np.round(yoy_customer_piechart.iloc[:,2] - yoy_customer_piechart.iloc[:,1])
@@ -142,8 +142,8 @@ pdf_pages.savefig(customer_pie_chart)
 # Divisional bar charts
 for division in division_list:
     yoy_pivot_region_filtered = region_growth[region_growth['Dest Division'] == division]
-    fig = plt.figure(figsize=(12, 8))
-    fig = plots.plot_yoy_growth_div_trunc(yoy_pivot_region_filtered,yoy_division_piechart_dic, plot_title=division, title_fontsize=25, tick_fontsize=19, annotation_fontsize=18,max_name_length=12)
+    fig = plt.figure(figsize=(20, 8))
+    fig = plots.plot_yoy_growth_div_trunc(yoy_pivot_region_filtered,yoy_division_piechart_dic, plot_title=division, title_fontsize=23, tick_fontsize=19, annotation_fontsize=18,max_name_length=12)
     pdf_pages.savefig(fig)
     plt.close(fig)
 

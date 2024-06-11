@@ -129,7 +129,7 @@ def plot_yoy_growth_div_trunc(yoy_growth, yoy_division_dic, plot_title, title_fo
     # Add the title
     percentage = list(yoy_division_dic[plot_title][0])[0]
     diff_str_div = f'{int(yoy_division_dic[plot_title][1]/1000)}k'
-    plt.title(f"{plot_title} :  YOY YTD is {percentage}%    |    Volume Change is {diff_str_div} ", fontsize=title_fontsize)
+    plt.title(f"{plot_title} :  YOY YTD is {percentage}% | {diff_str_div} ", fontsize=title_fontsize)
 
     # Remove y-axis ticks and labels
     plt.tick_params(axis='y', which='both', left=False, right=False, labelleft=False)

@@ -29,6 +29,8 @@ class IBApi(EWrapper, EClient):
         self.positions = []
         self.open_orders = []
         self.nextOrderId = None
+        self.reqId = 0  # Initialize reqId
+
 
     def nextValidId(self, orderId):
         self.nextOrderId = orderId
@@ -54,9 +56,8 @@ class IBApi(EWrapper, EClient):
     @iswrapper
     def historicalData(self, reqId, bar):
         if reqId not in self.data:
-            self.data[reqId] = pd.DataFrame([{"Date":bar.date,"Open":bar.open,"High":bar.high,"Low":bar.low,"Close":bar.close,"Volume":bar.volume}])
-        else:
-            self.data[reqId] = pd.concat((self.data[reqId],pd.DataFrame([{"Date":bar.date,"Open":bar.open,"High":bar.high,"Low":bar.low,"Close":bar.close,"Volume":bar.volume}])))
+            self.data[reqId] = []
+        self.data[reqId].append([bar.date, bar.open, bar.high, bar.low, bar.close, bar.volume])
             #self.data[reqId].append({"Date":bar.date,"Open":bar.open,"High":bar.high,"Low":bar.low,"Close":bar.close,"Volume":bar.volume})
 
     @iswrapper
@@ -109,17 +110,19 @@ class TradingApp:
     def run_loop(self):
         self.app.run()
 
-    def fetch_historical_data(self,req_id, ticker, duration, bar_size):
+    def fetch_historical_data(self,ticker, duration, bar_size):
 
         #endDateTime = datetime.now().strftime("%Y%m%d %H:%M:%S")
+        self.app.reqId += 1
+        reqId = self.app.reqId
         df = []
         contract = Contract()
         contract.symbol = ticker
         contract.secType = "STK"
-        contract.exchange = "ISLAND"
+        contract.exchange = "SMART"
         contract.currency = "USD"
         self.app.reqHistoricalData(
-                                    reqId=req_id,
+                                    reqId=reqId,
                                     contract = contract,
                                     endDateTime = "",
                                     durationStr = duration,
@@ -130,13 +133,25 @@ class TradingApp:
                                     keepUpToDate = False,
                                     chartOptions = [])
         
-        time.sleep(1)  # Wait for data to be returned
-        df = pd.DataFrame(self.app.data[req_id], columns=["Date", "Open", "High", "Low", "Close", "Volume"])
-        df["Date"] = pd.to_datetime(df["Date"])
-        df.insert(1, "Time Frame", bar_size)
-        df.insert(1, "Ticker", ticker)
-        df.set_index("Date", inplace=True)
-        return df
+        time.sleep(3)  # Wait for data to be returned
+
+#-------------
+        print(f"Fetching data for reqId {reqId} and ticker {ticker}")
+        if reqId in self.app.data:
+            df = pd.DataFrame(self.app.data[reqId], columns=["Date", "Open", "High", "Low", "Close", "Volume"])
+            df["Date"] = pd.to_datetime(df["Date"])
+            df.set_index("Date", inplace=True)
+
+
+
+            df = pd.DataFrame(self.app.data[reqId], columns=["Date", "Open", "High", "Low", "Close", "Volume"])
+            df["Date"] = pd.to_datetime(df["Date"])
+            df.insert(1, "Time Frame", bar_size)
+            df.insert(1, "Ticker", ticker)
+            df.set_index("Date", inplace=True)
+            return df
+        else:
+            print(f"No data received for reqId {reqId}")
 
     def create_historical_database(self, tickers):
         self.db = {}
@@ -144,18 +159,21 @@ class TradingApp:
             data = pd.DataFrame()
             print(f"Pulling {ticker} data")
             i=1
-            for duration, bar_size in [("5 D", "5 mins"), ("2 W", "15 mins"), ("9 W", "1 hour"), ("5 M", "4 hours"), ("1 Y", "1 day"), ("5 Y", "1 week"), ("20 Y", "1 month")]:
-                req_id = (n-1)+i
-                i +=1
-                df =[]
-                df = self.fetch_historical_data(req_id,ticker, duration, bar_size)
+            for duration, bar_size in [("5 D", "5 mins"), ("2 W", "15 mins"), ("2 M", "1 hour"), ("5 M", "4 hours"), ("1 Y", "1 day"), ("5 Y", "1 week"), ("20 Y", "1 month")]:
+                ##req_id = (n-1)+i
+                #i +=1
+                #df =[]
+                #df = self.fetch_historical_data(req_id,ticker, duration, bar_size)
+                df = self.fetch_historical_data(ticker, duration, bar_size)
                 time.sleep(5)
-
+                if df.empty:
+                    print(f"No data for ticker {ticker} with reqId {self.app.reqId}")
+                    continue
                 # Initialize the TechnicalIndicators class with the dataframe
                 df_for_TA = TechnicalIndicators(df)
-                df = df_for_TA.calculate_macd()
+                #df = df_for_TA.calculate_macd()
                 df = df_for_TA.wavy_tunnel()
-                df = df_for_TA.ichimoku()
+                #df = df_for_TA.ichimoku()
 
                 data = pd.concat([data, df])
             
@@ -222,7 +240,8 @@ class Trader:
         self.trading_app.disconnect()
 
 if __name__ == "__main__":
-    tickers = ["NIO","ICLN","PYPL"]#,"SHOP","GME","PYPL","TSLA","UPST","DLTR","BYD","ATOM","MCS","ABNB","SNOW","RBLX","MSFT","DKNG"]  # Add more tickers if needed
+    tickers = ["ABNB","ICLN","SHOP","GME","PYPL","TSLA","UPST","DLTR","BYD","ATOM","MCS","LAC","SNOW","RBLX","MSFT","DKNG"]  # Add more tickers if needed
+    tickers = ["ICLN","SHOP","DKNG","PYPL"]
     #bot_token = "6973724292:AAH4XTP3y1a-6EKi0yFBcqfSR45TsznSMJI"  # Replace with your actual Telegram bot token
     #chat_id = "83167574"  # Replace with your actual Telegram chat ID
     max_amount = 10000

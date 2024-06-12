@@ -35,10 +35,28 @@ for ticker in set(df['Ticker']):
                                 direction='backward', 
                                 suffixes=('', '_higher'))
         
+        buying_condition = (merged_df['Close'] > merged_df['EMA_12_Filter']) &\
+                    (merged_df['EMA_12_Filter'] > merged_df['Wave_EMA_Low']) &\
+                    (merged_df['EMA_12_Filter'] > merged_df['Tunnel_EMA_High']) &\
+                    (merged_df['Close'] < merged_df['target_higher']*0.99)
+        
+        merged_df['Signal']=""
+        merged_df.loc[buying_condition,'Signal'] = "Buy"
+
+
+        selling_condition = merged_df['High']>=merged_df['target_higher']
+        merged_df.loc[selling_condition,'Signal_sell'] = "Sell"
+
+
         #df.loc[merged_df.index, 'target'] = merged_df['Tunnel_EMA_Low_higher']
         db = pd.concat([db,merged_df])
 
+
+
+
+
+
 # Save the updated DataFrame to a new CSV file
-output_file_path = 'stocks_historical_data_with_targets.csv'
-db.to_csv(output_file_path, index=False)
+output_file_path = 'stocks_historical_data_with_targets_sell.xlsx'
+db.to_excel(output_file_path)
 

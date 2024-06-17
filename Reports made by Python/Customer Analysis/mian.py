@@ -3,7 +3,7 @@ import numpy as np
 import plots
 import datetime,datetime
 ####
-db = pd.read_excel('Input/amazon.xlsx')
+db = pd.read_excel('Input/jiayou.xlsx')
 ter_type = pd.read_excel('Input/Terminal Type.xlsx')
 
 division_list = ['ATLANTIC','QUEBEC' ,'GREATER TORONTO AREA', 'NORTH EASTERN ONTARIO', 'SOUTH WESTERN ONTARIO','PACIFIC', 'PRAIRIES']
@@ -24,7 +24,7 @@ for customer in customers_list:
     try:
         yoy_pivot_by_division['diff'] = yoy_pivot_by_division.iloc[:, 2] - yoy_pivot_by_division.iloc[:, 1]
     except IndexError:
-        yoy_pivot_by_division[2023] = 0
+        yoy_pivot_by_division.insert(1,column=2023,value=0)
         yoy_pivot_by_division['diff'] = yoy_pivot_by_division.iloc[:, 2] - yoy_pivot_by_division.iloc[:, 1]    
     yoy_pivot_by_division['per'] = np.round(100*((yoy_pivot_by_division.iloc[:,2] / yoy_pivot_by_division.iloc[:,1])-1),2)
     yoy_pivot_by_division['per'].replace([np.inf],100,inplace=True)

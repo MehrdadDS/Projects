@@ -1,36 +1,29 @@
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report, roc_auc_score
+import numpy as np
 
-# Load and prepare your data
-df = pd.read_excel('Input\your_dataset.xlsx')
-df = df[df['Master Client']== "Columbia Sportswear Ltd - Master Client"]
-df = df.sort_values(['Master Client','Year','Week'])
+# Load your dataset
+data = pd.read_csv('your_dataset.csv')
 
-# Feature engineering (example)
-df['volume_change'] = df.groupby('Master Client')['Pieces'].pct_change()
-df['recency'] = df.groupby('Master Client').cumcount(ascending=False)
-df['frequency'] = df.groupby('Master Client')['Pieces'].transform('count')
+# Calculate weekly percentage change
+data = data[data['Master Client']== "Columbia Sportswear Ltd - Master Client"]
 
-# Define churn (example)
-df['churn'] = df['Pieces'].shift(-1).isna().astype(int)
+data['Pct_Change'] = data.groupby('Master Client')['Pieces'].pct_change()
 
-# Prepare features and target
-features = ['volume_change', 'recency', 'frequency']
-X = df[features].fillna(0)
-y = df['churn']
+# Calculate 4-week moving average
+data['Moving_Avg'] = data.groupby('Master Client')['Pieces'].transform(lambda x: x.rolling(window=4).mean())
 
-# Train-test split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Calculate volatility (standard deviation of the last 4 weeks)
+data['Volatility'] = data.groupby('Master Client')['Pieces'].transform(lambda x: x.rolling(window=4).std())
 
-# Train model
-model = LogisticRegression()
-model.fit(X_train, y_train)
+# Define churn: Label instances where the volume drops below a threshold
+threshold = 0.5
+data['Churn'] = data['Pct_Change'].apply(lambda x: 1 if x < -threshold else 0)
 
-# Predict and evaluate
-y_pred = model.predict(X_test)
-y_pred_prob = model.predict_proba(X_test)[:, 1]
+# Example features: Weekly change, Moving average, Volatility
+features = data[['Pct_Change', 'Moving_Avg', 'Volatility']]
+labels = data['Churn']
 
-print(classification_report(y_test, y_pred))
-print("ROC-AUC:", roc_auc_score(y_test, y_pred_prob))
+# Handle missing values
+features = features.fillna(0)
+
+

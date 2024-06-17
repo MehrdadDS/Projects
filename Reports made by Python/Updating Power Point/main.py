@@ -6,7 +6,7 @@ forecast = pd.read_csv(r'Input/forecast.csv',parse_dates=True)
 actual   = pd.read_csv(r'Input/courierops_actuals - daily.csv')
 terminals = pd.read_csv(r'Input/terminals.csv')
 
-starting_date = datetime.datetime(2024,6,2 )
+starting_date = datetime.datetime(2024,6,9 )
 ending_date = starting_date+datetime.timedelta(days=6)
 number_working_days = 5
 thd = 0.151

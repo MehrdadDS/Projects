@@ -29,13 +29,13 @@ merged_db['daily_avg'] = round(merged_db['Pieces']/merged_db['Working Days'],1)
 merged_db = merged_db.sort_values(['Master Client','Year','Week'])
 
 customer_total = merged_db.groupby('Master Client')['daily_avg'].mean().reset_index()
-customer_list = sorted(list(customer_total[customer_total['daily_avg']>=20]['Master Client']))
+customer_list = sorted(list(customer_total[customer_total['daily_avg']>=5]['Master Client']))
 
 result_db = {}
 for cus in customer_list:
     print(f'start working on {cus}')
     data = merged_db[merged_db['Master Client'] == cus]
-    data = data[data['Year'] >= 2024]
+    #data = data[data['Year'] >= 2024]
 
     # Calculate weekly percentage change
     data['Pct_Change'] = data.groupby('Master Client')['daily_avg'].pct_change()
@@ -97,4 +97,4 @@ for cus in customer_list:
 
 
 result_db = pd.DataFrame.from_dict(result_db, orient='index',columns=['trend','p_value','Sig_or_NotSig','magnitude of daily_avg'])
-result_db.to_excel('res.xlsx')
+result_db.to_excel('res_edmonton_north.xlsx')

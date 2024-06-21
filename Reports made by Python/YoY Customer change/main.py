@@ -31,7 +31,8 @@ pcs_per_reg = 0.1
 removing_customers = []
 
 
-division_list = ['ATLANTIC','QUEBEC' ,'GREATER TORONTO AREA', 'NORTH EASTERN ONTARIO', 'SOUTH WESTERN ONTARIO','PACIFIC', 'PRAIRIES']
+division_list = ['ATLANTIC','QUEBEC' ,'GREATER TORONTO AREA', 'NORTH EASTERN ONTARIO', 'SOUTH WESTERN ONTARIO','PACIFIC', 'PRAIRIES',
+                 ]
 
 division_notations= {
                     'ATLANTIC':"ATL",
@@ -49,27 +50,32 @@ division_notations= {
 """ Pull VT DATA and preprocess the data"""
 #path=r"C:\My Folder\Python Projects\Reports\YoY Customer change\Input\yoy_data_return.xlsx"
 #yoy = yoy_data_grapper.yoy_data_grapper(starting_week, ending_week)[1]
-yoy = pd.read_excel(r"Input\yoy_data.xlsx")
+yoy = pd.read_excel(r"Input\MTD-JunOverMay-dailyAvg.xlsx")
 #yoy= f.aggregate_excel_sheets(path)
 yoy = yoy.iloc[1:,:]
 yoy['Pieces'] = yoy['Pieces'].astype(int)
 yoy.columns = ['Year','Master Client','Dest Division', 'Pieces']
+yoy = yoy[~yoy['Master Client'].isin(removing_customers)]
+#yoy = yoy[yoy['Dest Division'].isin(division_list)]
+yoy['Master Client'] = yoy['Master Client'].fillna('NA customers')
+#yoy = yoy[yoy['Master Client']!='-']
+
+
+
 """Creating pivot table based on years"""
 yoy_pivot_by_years =  yoy.pivot_table(values='Pieces',columns='Year',aggfunc='sum').reset_index().fillna(0)
 yoy_pivot_by_years['diff'] = np.round(yoy_pivot_by_years.iloc[:,2] - yoy_pivot_by_years.iloc[:,1])
 yoy_pivot_by_years['per'] = np.round(( yoy_pivot_by_years.iloc[:,2] / yoy_pivot_by_years.iloc[:,1] -1  ) * 100,1)
 
 
-yoy = yoy[~yoy['Master Client'].isin(removing_customers)]
-yoy = yoy[yoy['Dest Division'].isin(division_list)]
-yoy = yoy[yoy['Master Client']!='-']
+
 
 """Creating pivot table based on customers"""
 yoy_pivot_by_customer = yoy.pivot_table(values='Pieces',index='Master Client',columns='Year',aggfunc='sum').reset_index().fillna(0)
 yoy_pivot_by_customer['diff'] = np.round(yoy_pivot_by_customer.iloc[:,2] - yoy_pivot_by_customer.iloc[:,1])
 yoy_pivot_by_customer['per'] = np.round(( yoy_pivot_by_customer.iloc[:,2] / yoy_pivot_by_customer.iloc[:,1] -1  ) * 100)
 yoy_pivot_by_customer['per'].replace([np.inf],100,inplace=True)
-yoy.head()
+yoy_pivot_by_customer.head()
 
 
 """Creating pivot table based on divisions"""
@@ -77,7 +83,7 @@ yoy_division_piechart = yoy.pivot_table(values='Pieces',index='Dest Division',co
 yoy_division_piechart['diff'] = np.round(yoy_division_piechart.iloc[:,2] - yoy_division_piechart.iloc[:,1])
 yoy_division_piechart['per'] = np.round((yoy_division_piechart.iloc[:, 2] / yoy_division_piechart.iloc[:, 1] - 1) * 100, decimals=1)
 yoy_division_piechart_dic = {i:[yoy_division_piechart.loc[yoy_division_piechart['Dest Division']==i,'per'],yoy_division_piechart.loc[yoy_division_piechart['Dest Division']==i,'diff']] for i in yoy_division_piechart['Dest Division'].unique()}
-yoy_division_piechart['Dest Division'] = yoy_division_piechart['Dest Division'].apply(lambda x: division_notations[x] )
+#yoy_division_piechart['Dest Division'] = yoy_division_piechart['Dest Division'].apply(lambda x: division_notations[x] )
 
 
 
@@ -98,7 +104,7 @@ yoy_pivot_region['per'].replace([np.inf],100,inplace=True)
 yoy_pivot_region.head()
 condition = ((yoy_pivot_region['per'] > pcs_per_reg) & (yoy_pivot_region['diff'] > pcs_thr_reg)) | ((yoy_pivot_region['per'] < -1 * pcs_per_reg) & (yoy_pivot_region['diff'] < -1 * pcs_thr_reg))
 region_growth = yoy_pivot_region[condition].sort_values(by='diff')
-yoy_pivot_region.to_csv('yoy_pivot_region.csv')
+yoy_pivot_region.to_csv('MTD-JunOverMay-dailyAvg.csv')
 """Creating Pie chart based on Customers"""
 yoy_customer_piechart = yoy.pivot_table(values='Pieces',index='Master Client',columns='Year',aggfunc='sum').reset_index().fillna(0)
 yoy_customer_piechart['diff'] = np.round(yoy_customer_piechart.iloc[:,2] - yoy_customer_piechart.iloc[:,1])

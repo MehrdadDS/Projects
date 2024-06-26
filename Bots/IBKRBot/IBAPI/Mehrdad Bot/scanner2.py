@@ -2,7 +2,7 @@ from ibapi.client import *
 from ibapi.wrapper import *
 from ibapi.tag_value import *
 
-port = 7496
+port = 7497
 
 class TestApp(EClient, EWrapper):
     def __init__(self):
@@ -15,8 +15,8 @@ class TestApp(EClient, EWrapper):
         sub.locationCode = "STK.US.MAJOR"
         
         sub.locationCode = "STK.NASDAQ"
-        #sub.scanCode = "TOP_TRADE_COUNT"
-        sub.scanCode = "TOP_OPEN_PERC_GAIN"
+        sub.scanCode = "TOP_TRADE_COUNT"
+        #sub.scanCode = "TOP_OPEN_PERC_GAIN"
 
         scan_options = []
         filter_options = [
@@ -37,6 +37,7 @@ class TestApp(EClient, EWrapper):
         self.disconnect()
         print(f"scannerDataEnd. reqId: {reqId}")
         print("Tickers:", self.tickers)
+        
 
 def main():
     app = TestApp()

@@ -5,6 +5,8 @@ import time
 from ibapi.contract import Contract
 import numpy as np
 import pandas as pd
+from datetime import datetime
+
 
 class OrderManager:
     def __init__(self, app, max_amount):
@@ -77,7 +79,7 @@ class OrderManager:
                         "potential_profit":signal['potential_profit'],
                         "potential_loss":signal['potential_loss'],
                     })
-                    time.sleep(1)  # To ensure the order is placed
+                    time.sleep(5)  # To ensure the order is placed
 
     def calculate_quantity(self, entry_price):
         return int(self.max_amount // entry_price)
@@ -99,3 +101,80 @@ class OrderManager:
             'stop_loss', 'filled_quantity', 'target_price', 'order_state', 'tif'#, 'time_placement'#, 'status_history'
         ])
         return open_orders_df
+    
+
+    def placing_selling_OCA_orders(self, positions_df, sell_limit_price, stop_loss_price):
+        open_orders_df = self.open_orders()
+
+        for index, position in positions_df.iterrows():
+            ticker = position['Symbol']
+            position_quantity = position['Position']
+
+            # Check if there are existing sell limit or stop loss orders for this ticker
+            existing_orders = open_orders_df[open_orders_df['ticker'] == ticker]
+            has_sell_limit = not existing_orders[(existing_orders['type'] == 'LMT') & (existing_orders['action'] == 'SELL')].empty
+            has_stop_loss = not existing_orders[(existing_orders['type'] == 'STP') & (existing_orders['action'] == 'SELL')].empty
+
+            if not has_sell_limit or not has_stop_loss:
+                order_id = self.app.nextOrderId
+                sell_limit_order = Order()
+                sell_limit_order.orderId = order_id
+                sell_limit_order.action = "SELL"
+                sell_limit_order.orderType = "LMT"
+                sell_limit_order.totalQuantity = position_quantity
+                sell_limit_order.lmtPrice = round(sell_limit_price,1)
+                sell_limit_order.tif = "GTC"
+                sell_limit_order.ocaGroup = f"OCA_{ticker}_{order_id}"
+                sell_limit_order.eTradeOnly=""
+                sell_limit_order.firmQuoteOnly = ""
+
+
+                stop_loss_order = Order()
+                stop_loss_order.orderId = order_id + 1
+                stop_loss_order.action = "SELL"
+                stop_loss_order.orderType = "STP"
+                stop_loss_order.totalQuantity = position_quantity
+                stop_loss_order.auxPrice = round(stop_loss_price,1)
+                stop_loss_order.tif = "GTC"
+                stop_loss_order.ocaGroup = f"OCA_{ticker}_{order_id}"
+                stop_loss_order.eTradeOnly=""
+                stop_loss_order.firmQuoteOnly = ""
+
+
+                contract = self.create_contract(ticker)
+                self.app.placeOrder(sell_limit_order.orderId, contract, sell_limit_order)
+                time.sleep(5)
+                self.app.placeOrder(stop_loss_order.orderId, contract, stop_loss_order)
+                time.sleep(5)
+
+                self.orders.append({
+                    #"time_placement": datetime.now(),
+                    "ticker": ticker,
+                    "type": sell_limit_order.orderType,
+                    "action": sell_limit_order.action,
+                    "quantity": position_quantity,
+                    "entry_point": sell_limit_price,
+                    "stop_loss": stop_loss_price,
+                    "filled_quantity": 0,  # Placeholder for actual filled quantity
+                    "target_price": sell_limit_price,
+                    "order_id": sell_limit_order.orderId,
+                    "tif": sell_limit_order.tif,
+                    "oca_group": sell_limit_order.ocaGroup
+                })
+                self.orders.append({
+                    #"time_placement": datetime.now(),
+                    "ticker": ticker,
+                    "type": stop_loss_order.orderType,
+                    "action": stop_loss_order.action,
+                    "quantity": position_quantity,
+                    "entry_point": sell_limit_price,
+                    "stop_loss": stop_loss_price,
+                    "filled_quantity": 0,  # Placeholder for actual filled quantity
+                    "target_price": sell_limit_price,
+                    "order_id": stop_loss_order.orderId,
+                    "tif": stop_loss_order.tif,
+                    "oca_group": stop_loss_order.ocaGroup
+                })
+                time.sleep(1)  # To ensure the order is placed
+
+

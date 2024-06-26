@@ -16,10 +16,10 @@ from telegrambot import TelegramBot
 from ibapi.order import Order
 from datetime import datetime
 import sqlite3
+import config
 import warnings
 warnings.filterwarnings("ignore")
-
-
+import sql
 
 
 class IBApi(EWrapper, EClient):
@@ -92,7 +92,23 @@ class IBApi(EWrapper, EClient):
                     'last_fill_price': lastFillPrice,
                 })
 
+    @iswrapper
+    def openOrderEnd(self):
+        print("OpenOrderEnd")
 
+    @iswrapper
+    def historicalDataEnd(self, reqId, start, end):
+        print(f"HistoricalDataEnd. ReqId: {reqId}, from {start} to {end}")
+
+    @iswrapper
+    def connectionClosed(self):
+        print("Connection closed")
+        self.connected = False
+
+    @iswrapper
+    def connectAck(self):
+        print("Connection acknowledged")
+        self.connected = True
 """I changed this part
         if reqId not in self.data:
             self.data[reqId] = []
@@ -166,7 +182,7 @@ class TradingApp:
                 #df = self.fetch_historical_data(req_id,ticker, duration, bar_size)
                 df = self.fetch_historical_data(ticker, duration, bar_size)
                 time.sleep(5)
-                if df.empty:
+                if df is None:
                     print(f"No data for ticker {ticker} with reqId {self.app.reqId}")
                     continue
                 # Initialize the TechnicalIndicators class with the dataframe
@@ -196,6 +212,7 @@ class Trader:
     def generate_signals(self):
         stocks_historical_data = self.trading_app.create_historical_database(self.tickers)
         time_frames = ['5 mins', '15 mins', '1 hour', '4 hours', '1 day', '1 week']
+        #time_frames = ['1 month']
         
         combined_df = pd.concat(stocks_historical_data.values())
         combined_df.to_csv('stocks_historical_data.csv')
@@ -205,11 +222,21 @@ class Trader:
             for tf in time_frames:
                 strategy = TradingStrategies(ticker_data)
                 result = strategy.wavy_tunnel_conservative_strategy(tf)
-                if result['trade_trigger'] == "Yes":
-                    self.signals[len(self.signals) + 1] = result
-                    formatted_message = self.telegram_bot.format_signal(result)
-                    self.telegram_bot.tlg_send_message(formatted_message)    
+                if result:
+                    if result['trade_trigger'] == "Yes":
+                        self.signals[len(self.signals) + 1] = result
+                        formatted_message = self.telegram_bot.format_signal(result)
+                        self.telegram_bot.tlg_send_message(formatted_message)
+                
+                """
+                result = strategy.wavy_tunnel_conservative_strategy(tf)
+                result_short  = strategy.short_wavy_tunnel_conservative_strategy(tf)
 
+                elif result_short['trade_trigger'] == "Yes":
+                    self.signals[len(self.signals) + 1] = result_short
+                    formatted_message = self.telegram_bot.format_signal(result_short)
+                    self.telegram_bot.tlg_send_message(formatted_message)
+                """
         self.signals_df = pd.DataFrame.from_dict(self.signals, orient='index')
         print(self.signals_df)
         #formatted_message = self.telegram_bot.format_signal(self.signals_df.head())
@@ -222,6 +249,7 @@ class Trader:
         positions_df = self.positions_manager.get_positions_df()
         print(positions_df)
         self.telegram_bot.tlg_send_message(f"Current Positions:\n{positions_df.to_string()}")
+        return positions_df
     
     
     def get_open_orders(self):
@@ -231,19 +259,24 @@ class Trader:
         #self.telegram_bot.tlg_send_message(f"Open Orders:\n{open_orders_df.to_string()}")
         return open_orders_dataframe
     
-    
+    def place_selling_oca_orders(self,positions_df,sell_limit_price, stop_loss_price):
+        #positions_df = self.positions_manager.get_positions_df()
+        #positions_df = self.check_positions()
+        self.order_manager.placing_selling_OCA_orders(positions_df, sell_limit_price, stop_loss_price)
+
+
     def run(self):
-        open_orders_df = self.get_open_orders()
+        #open_orders_df = self.get_open_orders()
         self.generate_signals()
         self.place_orders()
-        self.check_positions()
+        positions_df = self.check_positions()
+        #trader.place_selling_oca_orders(positions_df,sell_limit_price=150, stop_loss_price=130)
         self.trading_app.disconnect()
 
 if __name__ == "__main__":
-    tickers = ["ABNB","ICLN","SHOP","GME","PYPL","TSLA","UPST","DLTR","BYD","ATOM","MCS","LAC","SNOW","RBLX","MSFT","DKNG"]  # Add more tickers if needed
-    tickers = ["ICLN","SHOP","DKNG","PYPL"]
-    #bot_token = "6973724292:AAH4XTP3y1a-6EKi0yFBcqfSR45TsznSMJI"  # Replace with your actual Telegram bot token
-    #chat_id = "83167574"  # Replace with your actual Telegram chat ID
+    tickers = config.medium_cap_tickers_between_50_to_100[:4]
+
+    #tickers = ['TESS', 'TEX', 'TF', 'TFSL', 'TFX', 'TG', 'TGA', 'TGB', 'TGH', 'TGHI']
     max_amount = 10000
 
     trader = Trader(tickers, max_amount)
@@ -251,6 +284,7 @@ if __name__ == "__main__":
     #while i<2:
     #    print(i,int(time.time()))
     trader.run()
+    
     #    i +=1
     #print(time.sleep(90))
     

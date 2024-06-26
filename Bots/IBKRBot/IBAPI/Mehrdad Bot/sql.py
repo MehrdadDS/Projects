@@ -25,4 +25,4 @@ def append_to_sql(df, db_url, schema, table):
 
 
 #df = pd.read_excel('Book1.xlsx')
-#append_to_sql(df, db_url, 'stock', 'signals')
+#append_to_sql(df, db_url, 'stock', 'historical_data')

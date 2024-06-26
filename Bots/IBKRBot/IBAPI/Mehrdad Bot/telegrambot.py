@@ -18,13 +18,19 @@ class TelegramBot:
 
     @staticmethod
     def format_signal(signal):
-        formatted_message = f"""
-        Ticker: {signal['ticker']}
-        Time Frame: {signal['time_frame']}
-        Trade Trigger: {signal['trade_trigger']}
-        Entry Point: {signal['entry_point']}
-        Stop Loss: {signal['stoploss']}
-        Target: {signal['target']}
-        Risk to Reward: {signal['risk_to_reward']}
-        """
+        if signal :
+            formatted_message = f"""
+            Ticker: {signal['ticker']}
+            Time Frame: {signal['time_frame']}
+            Trade Trigger: {signal['trade_trigger']}
+            Entry Point: {signal['entry_point']}
+            Stop Loss: {signal['stoploss']}
+            Target: {signal['target']}
+            Risk to Reward: {signal['risk_to_reward']}
+            """
+        else:
+            formatted_message = f"""
+            Ticker: None
+            """
+
         return formatted_message

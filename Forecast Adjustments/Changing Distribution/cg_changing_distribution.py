@@ -9,7 +9,7 @@ import os
 
 ########################################## Import files
 # Import Forecast
-folder_path =r"C:\My Folder\Forecasts\CG Forecast\CG EID\Output"
+folder_path =r"C:\My Folder\Forecasts\CG Forecast\CG EDD\Output"
 db = pd.read_excel(os.path.join(folder_path,'ForecastResults.xlsx'),sheet_name='Forecast')
 distributions = pd.read_excel(os.path.join(folder_path,'ForecastResults - distribution.xlsx'),sheet_name="Forecast")
 

@@ -24,8 +24,7 @@ print(datetime.datetime.now().strftime("%H:%M:%S"))
 
 eid_path = r"C:\My Folder\Python Projects\Updating CG Dashboard\Input\CG EID actuals daily.csv"
 edd_path = r"C:\My Folder\Python Projects\Updating CG Dashboard\Input\CG EDD actuals daily.csv"
-
-
+pi_path  = r"C:\My Folder\Github\Automated dashboards\Updating CG dashboard\Output\PI EDD actuals.csv"
 
 
 service_obj = Service(
@@ -162,7 +161,7 @@ def ControlGroupEDDDataGrapper():
     #time.sleep(15)
     driver.find_element(By.CSS_SELECTOR, "div[title='Send to Excel']").click()
     print(datetime.datetime.now().strftime("%H:%M:%S"))
-    time.sleep(20)#160
+    time.sleep(50)#160
     print(datetime.datetime.now().strftime("%H:%M:%S"))
 
     wait = WebDriverWait(driver, 10)

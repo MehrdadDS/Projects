@@ -2,10 +2,17 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import pymannkendall as mk
+from functions import process_excel
+last_week_2024 = 27
 
 # Load your dataset
-db = pd.read_excel(r'Input/your_dataset.xlsx')#,nrows=1000)
-db =db.iloc[1:,:]
+path = r'Input/your_dataset.xlsx'
+db = process_excel(path)
+
+condition = ((db['Year']<2024)&(db['Year']>=2023)) |((db['Year']==2024) & (db['Week']<=last_week_2024))
+db = db[condition]
+
+
 holidays = pd.read_excel(r'C:\My Folder\Forecasts\Holidays_2025.xlsx',sheet_name='Working Days by Week')
 holidays = holidays[['Year', 'Week Number','Working Days']].drop_duplicates().rename(columns= {'Week Number':'Week'})
 db['Master Client'] = db['Master Client'].fillna("No Master Customer")
@@ -97,4 +104,4 @@ for cus in customer_list:
 
 
 result_db = pd.DataFrame.from_dict(result_db, orient='index',columns=['trend','p_value','Sig_or_NotSig','magnitude of daily_avg'])
-result_db.to_excel('res_edmonton_north.xlsx')
+result_db.to_excel('result.xlsx')

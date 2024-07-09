@@ -50,7 +50,7 @@ division_notations= {
 """ Pull VT DATA and preprocess the data"""
 #path=r"C:\My Folder\Python Projects\Reports\YoY Customer change\Input\yoy_data_return.xlsx"
 #yoy = yoy_data_grapper.yoy_data_grapper(starting_week, ending_week)[1]
-yoy = pd.read_excel(r"Input\MTD-JunOverMay-dailyAvg.xlsx")
+yoy = pd.read_excel(r"Input\yoy_data.xlsx")
 #yoy= f.aggregate_excel_sheets(path)
 yoy = yoy.iloc[1:,:]
 yoy['Pieces'] = yoy['Pieces'].astype(int)

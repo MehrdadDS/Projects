@@ -12,9 +12,9 @@ import functions
 import QVDataGrapper_VT_EidEdd
 
 
-eid_path = r"C:\My Folder\Python Projects\Updating CG Dashboard\Output\CG EID actuals daily.csv"
-edd_path = r"C:\My Folder\Python Projects\Updating CG Dashboard\Output\CG EDD actuals daily.csv"
-pi_path  = r"C:\My Folder\Python Projects\Updating CG Dashboard\Output\PI EDD actuals.csv"
+eid_path = r"C:\My Folder\Github\Automated dashboards\Updating CG dashboard\Output\CG EID actuals daily.csv"
+edd_path = r"C:\My Folder\Github\Automated dashboards\Updating CG dashboard\Output\CG EDD actuals daily.csv"
+pi_path  = r"C:\My Folder\Github\Automated dashboards\Updating CG dashboard\Output\PI EDD actuals.csv"
 
 file_path = r"https://purolator.sharepoint.com/sites/OperationsForecasts774/Shared%20Documents/Control%20Group%20Customers%20Analysis/Control%20Group%20Dashboard.xlsx"
 

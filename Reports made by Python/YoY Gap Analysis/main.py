@@ -13,8 +13,8 @@ db = db.iloc[1:,:]
 
 yoy_gap_analysis_file = 'yoy_gap_analysis_file.pdf'
 
-holiday_weeks = {2023:[1,8,14,21],#14
-                 2024:[1,8,13,21]}
+holiday_weeks = {2023:[1,8,14,21,27],#14
+                 2024:[1,8,13,21,27]}
 
 replacing_weeks = {13:14}
 yoy = db.copy(deep=True)

@@ -13,7 +13,8 @@ def process_excel(file_path):
     
     # Process other sheets and append to the first sheet
     for sheet in sheet_names[1:]:
-        temp_df = pd.read_excel(xls, sheet_name=sheet)
+        temp_df = pd.read_excel(xls, sheet_name=sheet,header=None)
+        temp_df.columns = df.columns
         df = pd.concat([df, temp_df], ignore_index=True)
     
     return df

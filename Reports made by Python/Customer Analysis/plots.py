@@ -7,35 +7,77 @@ import matplotlib.pyplot as plt
 import os
 from datetime import datetime
 
+import matplotlib.pyplot as plt
+import os
+import pandas as pd
+from datetime import datetime
+
 def plot_yearly_trend(df, customer, output_folder, xticks_size=10, graph_title="Yearly Customer Trend", x_label="Week", y_label="Pieces"):
+    # Get current year and previous year
+    current_year = datetime.now().year
+    previous_year = current_year - 1
+    
+    # Get the last completed week
+    last_week = df['Week'].max()
+    
+    # Filter data for current year and previous year up to the last completed week
+    current_year_data = df[(df['Year'] == current_year) & (df['Week'] <= last_week)]
+    previous_year_data = df[(df['Year'] == previous_year) & (df['Week'] <= last_week)]
+    
+    # Calculate the sum of pieces for both years up to that week
+    current_year_sum = current_year_data['Pieces'].sum()
+    previous_year_sum = previous_year_data['Pieces'].sum()
+    
+    # Calculate YoY variance and error
+    if previous_year_sum != 0:
+        yoy_variance = ((current_year_sum - previous_year_sum) / previous_year_sum) * 100
+    else:
+        yoy_variance = float('inf')  # Handle division by zero if previous_year_sum is zero
+    
+    error = current_year_sum - previous_year_sum
+    
+    # Format YoY variance and error with signs
+    yoy_variance_str = f"{yoy_variance:.1f}%"
+    error_str = f"{error / 1000:.2f}K"
+    
+    if yoy_variance > 0:
+        yoy_variance_str = f"+{yoy_variance_str}"
+    elif yoy_variance < 0:
+        yoy_variance_str = f"{yoy_variance_str}"
+    
+    if error > 0:
+        error_str = f"+{error_str}"
+    elif error < 0:
+        error_str = f"{error_str}"
+    
     # Group the dataframe by Year
     grouped = df.groupby('Year')
 
     # Create a new figure
-    plt.figure()
+    plt.figure(figsize=(9, 5))
+    
     # Plot each group
     for name, group in grouped:
         plt.plot(group['Week'], group['Pieces'], label=name)
-
         
     # Customize xticks
     plt.xticks(fontsize=xticks_size)
     plt.yticks(fontsize=xticks_size)
 
-
     # Add labels and legend
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.legend(title='Year')
-    plt.title(f"{graph_title} - {customer}")
+    
+    # Add variance and error to the title
+    plt.title(f"{graph_title} - {customer}\nYTD YoY Change: {yoy_variance_str} or {error_str} pcs")
+    
     plt.xticks(df['Week'])
 
     # Format y-axis to display in k's
-    plt.gca().yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{int(x/1000):,}k'))
+    plt.gca().yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{int(x / 1000):,}k'))
 
     plt.grid(True)
-
-
 
     # Create the output folder if it doesn't exist
     os.makedirs(output_folder, exist_ok=True)
@@ -44,10 +86,11 @@ def plot_yearly_trend(df, customer, output_folder, xticks_size=10, graph_title="
     current_date = datetime.now().strftime("%Y%m%d")
     
     # Save as PNG with customer name and date in the specified output folder
-    plt.savefig(os.path.join(output_folder, f"{customer}_trend_{current_date}.png"),dpi=300)
+    plt.savefig(os.path.join(output_folder, f"{customer}_trend_{current_date}.png"), dpi=300)
     
     # Show the plot
     #plt.show()
+
 
 
 def plot_diff_division_bar_chart(df, customer, output_folder, title, title_font_size=16, label_font_size=12, xtick_font_size=10):

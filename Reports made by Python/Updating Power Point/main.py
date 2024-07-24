@@ -8,9 +8,9 @@ actual = pd.read_csv(r'Input/courierops_actuals - daily.csv')
 terminals = pd.read_csv(r'Input/terminals.csv')
 
 # Define date range and threshold
-starting_date = datetime.datetime(2024, 6, 30)
+starting_date = datetime.datetime(2024, 7, 14)
 ending_date = starting_date + datetime.timedelta(days=6)
-number_working_days = 4
+number_working_days = 5
 thd = 0.151
 
 # Parse dates

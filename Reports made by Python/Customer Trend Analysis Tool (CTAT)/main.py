@@ -9,7 +9,7 @@ import matplotlib.dates as mdates
 from matplotlib.backends.backend_pdf import PdfPages
 import pandas as pd
 
-last_week_2024 = 27
+last_week_2024 = 29
 starting_year =2023
 ending_year = 2024
 # Load your dataset
@@ -46,13 +46,13 @@ merged_db = merged_db.sort_values(['Master Client','Year','Week'])
 
 customer_total = merged_db[merged_db['Year']>=2024].groupby('Master Client')['daily_avg'].mean().reset_index()
 customer_total = customer_total.sort_values('daily_avg',ascending=False)
-customer_list = list(customer_total[customer_total['daily_avg']>=50]['Master Client'])
+customer_list = list(customer_total[customer_total['daily_avg']>=100]['Master Client'])
 result_db = {}
 # Create a PDF object
 pdf_pages = PdfPages("Customer Trend Analysis_2023.pdf")
 
 
-for cus in customer_list[1:10]:
+for cus in customer_list:
     print(f'start working on {cus}')
     data = merged_db[merged_db['Master Client'] == cus]
     #data = data[data['Year'] >= 2024]
@@ -72,11 +72,11 @@ for cus in customer_list[1:10]:
     #print(f"Mann-Kendall Test for {cus}: Trend: {result.trend}, P-value: {result.p:.2f}, Significance: {'Significant' if result.p < 0.05 else 'Not Significant'}")
     result_db[cus] = [result.trend,result.p,'Significant' if result.p < 0.05 else 'Not Significant',round(customer_total[customer_total['Master Client']==cus].iloc[0,1],0)]
     
-    customer_fig = plot_trend_lines(data, result_db, "Customer Trend Analysis_2023.pdf", last_week_2024)
-    pdf_pages.savefig(customer_fig)
+    #customer_fig = plot_trend_lines(data, result_db, "Customer Trend Analysis_2023.pdf", last_week_2024)
+    #pdf_pages.savefig(customer_fig)
     #print(f'{cus} is done')
 
 pdf_pages.close()
 result_db = pd.DataFrame.from_dict(result_db, orient='index',columns=['trend','p_value','Sig_or_NotSig','magnitude of daily_avg'])
-result_db.to_excel('result_2022.xlsx')
+result_db.to_excel('result_2023_1.xlsx')
 

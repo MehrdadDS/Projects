@@ -21,10 +21,10 @@ previous_year = 2023
 starting_week   = 1
 ending_week     = 12
 
-pcs_thr = 85000
+pcs_thr = 100000
 pcs_per = 0.1
 
-pcs_thr_reg = 30000
+pcs_thr_reg = 40000
 pcs_per_reg = 0.1
 
 #removing_customers = ['Wayfair - Master Client']
@@ -58,6 +58,7 @@ yoy.columns = ['Year','Master Client','Dest Division', 'Pieces']
 yoy = yoy[~yoy['Master Client'].isin(removing_customers)]
 #yoy = yoy[yoy['Dest Division'].isin(division_list)]
 yoy['Master Client'] = yoy['Master Client'].fillna('NA customers')
+yoy.loc[yoy['Master Client']=="-",'Master Client'] = 'NA customers'
 #yoy = yoy[yoy['Master Client']!='-']
 
 

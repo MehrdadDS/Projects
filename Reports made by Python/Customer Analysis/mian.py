@@ -3,7 +3,7 @@ import numpy as np
 import plots
 import datetime,datetime
 ####
-db = pd.read_excel('Input/top29.xlsx')
+db = pd.read_excel('Input/data.xlsx')
 ter_type = pd.read_excel('Input/Terminal Type.xlsx')
 
 division_list = ['ATLANTIC','QUEBEC' ,'GREATER TORONTO AREA', 'NORTH EASTERN ONTARIO', 'SOUTH WESTERN ONTARIO','PACIFIC', 'PRAIRIES']

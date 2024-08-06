@@ -22,9 +22,9 @@ import datetime
 
 print(datetime.datetime.now().strftime("%H:%M:%S"))
 
-eid_path = r"C:\My Folder\Python Projects\Updating CG Dashboard\Input\CG EID actuals daily.csv"
-edd_path = r"C:\My Folder\Python Projects\Updating CG Dashboard\Input\CG EDD actuals daily.csv"
-pi_path  = r"C:\My Folder\Github\Automated dashboards\Updating CG dashboard\Output\PI EDD actuals.csv"
+eid_path = r"C:\My Folder\Github\Automated dashboards\Updating CG dashboard\Input\CG EID actuals daily.csv"
+edd_path = r"C:\My Folder\Github\Automated dashboards\Updating CG dashboard\Input\CG EDD actuals daily.csv"
+pi_path  = r"C:\My Folder\Github\Automated dashboards\Updating CG dashboard\Input\PI EDD actuals.csv"
 
 
 service_obj = Service(
@@ -266,8 +266,8 @@ def PIDataGrapper():
     latest_file = max(list_of_files, key=os.path.getctime)
     print(latest_file)
     # read excel file using pandas
-    df = pd.read_excel(latest_file)
-    df.to_csv(str(eid_path))
+    pi = pd.read_excel(latest_file)
+    pi.to_csv(str(eid_path))
     os.remove(latest_file)
     driver.quit()
 
@@ -291,5 +291,5 @@ def PIDataGrapper():
         Flag = True
     else:
         Flag = False
-    return Flag, df
+    return Flag, pi
 

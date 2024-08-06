@@ -16,8 +16,8 @@ from ops_plots import plot_trendlines
 ########################################## Import files
 # Import Forecast
 
-df = pd.read_excel('C:\My Folder\P&D Forecast\P&D Forecast v2\Excel Output\ForecastResults_onesheet_modified.xlsx')
-distributions = pd.read_excel('C:\My Folder\P&D Forecast\P&D Forecast v2\Excel Output\ForecastResults-Check- July 19th.xlsm',sheet_name="Actual")
+df = pd.read_excel('C:\My Folder\P&D Forecast\P&D Forecast v2\Excel Output\ForecastResults_onesheet.xlsx')
+distributions = pd.read_excel('C:\My Folder\P&D Forecast\P&D Forecast v2\Excel Output\Peak forecast - Version 2 -July 19\ForecastResults-Check- July 19th.xlsm',sheet_name="Actual")
 actuals = pd.read_excel(r'C:\My Folder\P&D Forecast\P&D Forecast v2\Excel Output\Actual.xlsx')
 df.columns = ['Division', 'District', 'Terminal', 'Terminal.Name', 'Province', 'Year','Quarter', 'Period.Number','Week'
               , 'PCL.Del.Pcs.N','PCL.Del.Stops.N', 'PCL.PU.Pcs.N', 'PCL.PU.Stops.N', 'Agent.Del.Pcs.N',
@@ -25,7 +25,7 @@ df.columns = ['Division', 'District', 'Terminal', 'Terminal.Name', 'Province', '
 actuals.columns = df.columns
 actuals = actuals[actuals['Year']>=2022]
 current_year = 2024
-last_week_actual = 28
+last_week_actual = 30
 db_plots = pd.concat([df,actuals],axis=0)
 
 

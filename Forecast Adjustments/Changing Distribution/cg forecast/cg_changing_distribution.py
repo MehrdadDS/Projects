@@ -9,11 +9,11 @@ import os
 
 ########################################## Import files
 # Import Forecast
-folder_path =r"C:\My Folder\Forecasts\CG Forecast\CG EDD\Output"
+folder_path =r"C:\My Folder\Forecasts\CG Forecast\CG EID\Output"
 db = pd.read_excel(os.path.join(folder_path,'ForecastResults.xlsx'),sheet_name='Forecast')
 distributions = pd.read_excel(os.path.join(folder_path,'ForecastResults - distribution.xlsx'),sheet_name="Forecast")
 
-peak_weeks = (47,48,49,50,51,52)
+peak_weeks = (46,47,48,49,50,51,52)
 print(f"the script redistribute {peak_weeks}")
 
 # calculating total volume for peak period by terminals and customers
@@ -39,4 +39,4 @@ df_rest_year = db.query(f" `Week` not in {peak_weeks}")
 
 final_result = pd.concat([df_new_peak,df_rest_year]).sort_values(by=['Year','Week','Customer','Terminal'])
 
-final_result.to_csv(os.path.join(folder_path,"forecast_result_after_redistribution.csv"),index=False)
+final_result.to_excel(os.path.join(folder_path,"forecast_result_after_redistribution.xlsx"),index=False)

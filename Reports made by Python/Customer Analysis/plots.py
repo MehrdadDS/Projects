@@ -38,7 +38,7 @@ def plot_yearly_trend(df, customer, output_folder, xticks_size=10, graph_title="
     
     # Format YoY variance and error with signs
     yoy_variance_str = f"{yoy_variance:.1f}%"
-    error_str = f"{error / 1000:.2f}K"
+    error_str = f"{error / 1000:.0f}K"
     
     if yoy_variance > 0:
         yoy_variance_str = f"+{yoy_variance_str}"

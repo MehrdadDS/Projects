@@ -46,7 +46,7 @@ merged_db = merged_db.sort_values(['Master Client','Year','Week'])
 
 customer_total = merged_db[merged_db['Year']>=2024].groupby('Master Client')['daily_avg'].mean().reset_index()
 customer_total = customer_total.sort_values('daily_avg',ascending=False)
-customer_list = list(customer_total[customer_total['daily_avg']>=100]['Master Client'])
+customer_list = list(customer_total[customer_total['daily_avg']>=50]['Master Client'])
 result_db = {}
 # Create a PDF object
 pdf_pages = PdfPages("Customer Trend Analysis_2023.pdf")
